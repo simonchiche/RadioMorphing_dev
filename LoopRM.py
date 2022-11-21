@@ -66,7 +66,7 @@ for i in range(len(simulations)):
         
     TargetShower, RefShower, efield_interpolated, w_interpolated = \
     run(energy, zenith, azimuth, xmaxsim)
-    #sys.exit()
+    #fsys.exit()
     
 # =============================================================================
 #                         Radio Morphing tests

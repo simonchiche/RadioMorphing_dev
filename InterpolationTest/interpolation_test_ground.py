@@ -26,7 +26,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     NantRefStarshape = SimulatedShower.InitialShape
     NantRefLayout = SimulatedShower.NantTraces
     NantRefCrossCheck = NantRefLayout - NantRefStarshape
-    NantTargetLayout = TargetShower.nant - TargetShower.InitialShape        
+    NantTargetLayout = 176#TargetShower.nant - TargetShower.InitialShape        
     
     filtering = TargetShower.filter
     if filtering:
@@ -70,6 +70,8 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     refEx, refEy, refEz = np.array(refEx),  np.array(refEy),  np.array(refEz)
     error_peak,rm_peak, zh_peak, diff_time_all  = [], [], [], []
     
+    print(NantTargetLayout)
+    #sys.exit()
     for i in range(NantTargetLayout):
         
         # We load the Target traces
@@ -137,7 +139,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             #if(max(targetEtot)>1e4):
                 
             #print(max(targetEtot), max(refEtot[i]))
-            Ndisplay = 10
+            Ndisplay = 60
             if((Display) & (i<Ndisplay)):
                 
                 plt.plot(refTimeArray, refEtot[i], label = "simulation") 
@@ -150,6 +152,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
                 #plt.savefig\
                 #("./InterpolationTest_Etot_antenna_scale_int3D%.d.pdf" %i)
                 plt.show()
+                print(i)
             
             PeakrefEtot = max(refEtot[i])
             PeaktargetEtot = max(targetEtot)
