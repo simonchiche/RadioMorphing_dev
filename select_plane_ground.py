@@ -310,12 +310,13 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
         IndexAllCorrected.append(IndexDplane)
         if(STOP==NantDes): break
     #print(IndexAllCorrected, DsimAll)
-    DsimAll = DsimAll[len(IndexAllCorrected)]
-    PathAll = PathAll[len(IndexAllCorrected)]
-    '''
+    
+    #DsimAll = DsimAll[len(IndexAllCorrected)]
+    #PathAll = PathAll[len(IndexAllCorrected)]
+    
     DsimAll = DsimAll[:len(IndexAllCorrected)]
     PathAll = PathAll[:len(IndexAllCorrected)]
-    '''
+    
     
     return IndexAllCorrected, DsimAll, PathAll
     

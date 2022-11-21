@@ -538,8 +538,6 @@ def GetAntennaAnglesSimon(Zenith,Azimuth, xmax_position,positions_sims,positions
     
     distplane = np.mean(get_distplane(Zenith, Azimuth, x_sims, y_sims, z_sims, xXmax, yXmax, zXmax))
     dist_desired = get_distplane(Zenith, Azimuth, x_des, y_des, z_des, xXmax, yXmax, zXmax)
-    print(distplane)
-    print(dist_desired)
     distanceratio = [distplane/dist_desired]
 
 # =============================================================================

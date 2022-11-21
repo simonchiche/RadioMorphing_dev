@@ -49,7 +49,7 @@ def process(sim_dir, shower,  out_dir, simxmax):
     desired_positionsAll, simxmax, shower)
     
     print(DplaneRefAll)
-    IndexAll = np.arange(0,176,1)
+    #IndexAll = np.arange(0,176,1)
     #DplaneRefAll = DplaneRefAll[8]
     #PathAll = PathAll[8]     
     #sys.exit()
@@ -57,13 +57,13 @@ def process(sim_dir, shower,  out_dir, simxmax):
     
     EfieldAllAntennas, wAllAntennas = [], []
     
-    for i in range(1):#len(PathAll)):
+    for i in range(len(PathAll)):
         
-        selected_plane = PathAll#[i]
-        dplane = np.mean(DplaneTargetAll[IndexAll])#[i]])
+        selected_plane = PathAll[i]
+        dplane = np.mean(DplaneTargetAll[IndexAll[i]])
         print("yeaaah", dplane)
         #sys.exit()
-        desired_positions = desired_positionsAll[IndexAll]#[i]]
+        desired_positions = desired_positionsAll[IndexAll[i]]
         
         
         # We create the Target Shower
