@@ -538,6 +538,8 @@ def GetAntennaAnglesSimon(Zenith,Azimuth, xmax_position,positions_sims,positions
     
     distplane = np.mean(get_distplane(Zenith, Azimuth, x_sims, y_sims, z_sims, xXmax, yXmax, zXmax))
     dist_desired = get_distplane(Zenith, Azimuth, x_des, y_des, z_des, xXmax, yXmax, zXmax)
+    print(distplane)
+    print(dist_desired)
     distanceratio = [distplane/dist_desired]
 
 # =============================================================================
@@ -559,9 +561,6 @@ def GetAntennaAnglesSimon(Zenith,Azimuth, xmax_position,positions_sims,positions
     #print(phi_sims)
     pos_sims_angles = np.transpose([np.zeros(len(phi_sims)), phi_sims, w_sims_angles])
     pos_des_angles = np.transpose([np.zeros(len(phi_des)), phi_des, w_des_angles])
-    
-
-
     
     return pos_sims_angles, pos_des_angles, distanceratio #phi_sims, phi_des 
 
@@ -663,7 +662,7 @@ def SelectAntennasForInterpolation(pos_sims_angles,pos_des_angle, i, discarded):
     return Selected_I,Selected_II,Selected_III,Selected_IV
 
 
-def SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angle, i, discarded):
+def SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angle, i, Display, discarded):
     
 # =============================================================================
 #                        Initialisation
@@ -686,7 +685,7 @@ def SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angle, i, di
     
     # antenna in the inner circle of the starshape
     if(np.where(DeltaOmegaAll <0, DeltaOmegaAll, -np.inf)[NegArg] == -np.inf):
-        print(i, "Antennas inside the inner starshape circle")
+        if(Display): print(i, "Antennas inside the inner starshape circle")
         OmegaNeg, OmegaPos = \
         pos_sims_angles[NegArg,2], pos_sims_angles[PosArg,2]
         
@@ -722,7 +721,7 @@ def SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angle, i, di
 # =============================================================================
         
     elif(np.where(DeltaOmegaAll >0, DeltaOmegaAll, np.inf)[PosArg] == +np.inf):
-        print(i, "Antenna outside of the starshape: can not be interpolated")
+        if(Display): print(i, "Antenna outside of the starshape: can not be interpolated")
         SelectedI, SelectedII, SelectedIII, SelectedIV = -1, -1, -1, -1
         discarded.append(i)
         return SelectedI, SelectedII, SelectedIII, SelectedIV
@@ -1094,7 +1093,6 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
 
     positions_des=desired
     pos_sims_angles, pos_des_angles, distanceratio = GetAntennaAnglesSimon(Zenith,Azimuth,xmaxposition,positions_sims,positions_des, GroundAltitude, Inclination)
-    
     remove_antenna=[]
     desired_traceAll = []
     discarded = []
@@ -1103,8 +1101,8 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
         if(i%10==0): print("Computing... %d/%d antennas" %(i, len(pos_des_angles)))
         
         #select the four antennas for the inerpolation for this desired antenna
-        Selected_I,Selected_II,Selected_III,Selected_IV = SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angles[i], i, discarded)
-
+        Selected_I,Selected_II,Selected_III,Selected_IV = SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angles[i], i, True, discarded)
+        print(i, "--", Selected_I,Selected_II,Selected_III,Selected_IV)
         Skip=False
         for tracetype in usetracelist:
             #print("computing for "+tracetype+" on desired antenna "+str(i))

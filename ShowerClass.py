@@ -33,7 +33,7 @@ class Shower:
         self.fluctuations = fluctuations
         self.distplane = self.get_distplane()
         # hard coded from the reference library
-        self.InitialShape = 160
+        self.InitialShape = 176 # TODO: check
         self.NantTraces =  nantennas 
         self.filter = False
         
@@ -607,15 +607,18 @@ class Shower:
 #                         Analysis functions
 # =============================================================================
     
-def CerenkovStretch(RefShower, TargetShower):
+def CerenkovStretch(RefShower, TargetShower, GroundPlane = True):
     
-    TargetShower.pos, TargetShower.traces = TargetShower.GetinShowerPlane()
+    if(GroundPlane):
+        TargetShower.pos, TargetShower.traces = TargetShower.GetinShowerPlane()
+    
     Nant = RefShower.nant
     
     cerangle_ref = RefShower.get_cerenkov_angle()
     cerangle_target = TargetShower.get_cerenkov_angle()
     
     kstretch = cerangle_ref/cerangle_target
+
     w = RefShower.get_w()/kstretch
     
     v, vxb, vxvxb =  TargetShower.pos[:,0], \
@@ -634,10 +637,10 @@ def CerenkovStretch(RefShower, TargetShower):
     
    
     
-def extractData(sim_file):
+def extractData(sim_file, Display = True):
     
     simu_path = './' + sim_file
-    print(sim_file)
+    if(Display): print(sim_file)
     InputFilename = simu_path
     filehandle = h5py.File(InputFilename, 'r')
 

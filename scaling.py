@@ -41,7 +41,7 @@ def myscale(RefShower, TargetShower, simxmax):
     # Back in the geographic plane
     TargetShower.pos, TargetShower.traces = TargetShower.GetinGeographicFrame()
         
-    # TODO: include magnetic field scaling
+    # TODO: include magnetic field scaling   
     
     return TargetShower, krho_geo
         

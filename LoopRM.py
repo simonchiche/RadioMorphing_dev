@@ -25,7 +25,7 @@ ResidualPeakAll, TargetPeakAll, RefPeakAll, OmegaAll = [], [], [], []
 
 # We loop the RM over the ZHS test library
 for i in range(len(simulations)):
-    
+ 
 # =============================================================================
 #                           Initialization
 # =============================================================================
@@ -66,6 +66,7 @@ for i in range(len(simulations)):
         
     TargetShower, RefShower, efield_interpolated, w_interpolated = \
     run(energy, zenith, azimuth, xmaxsim)
+    #sys.exit()
     
 # =============================================================================
 #                         Radio Morphing tests
