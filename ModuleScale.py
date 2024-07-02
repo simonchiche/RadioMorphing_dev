@@ -128,6 +128,87 @@ def DensityScale(RefShower, TargetShower):
     
     scaled_traces_geo = TargetShower.traces[:,2*Nant:3*Nant]*krho_geo
     scaled_traces_ce = TargetShower.traces[:,3*Nant:4*Nant]*krho_ce
+    
+            
+    return scaled_traces_geo, scaled_traces_ce, xmax_target, krho_geo, krho_ce
+
+def DensityScaleBiasCorrected(RefShower, TargetShower):
+    
+    Nant = RefShower.nant
+    
+    xmax_target  = TargetShower.getXmaxPosition()
+            
+    XmaxHeight_target, DistDecayXmax = TargetShower._dist_decay_Xmax()    
+    XmaxHeight_ref = RefShower.getSphericalXmaxHeight()
+            
+    rho_ref = TargetShower._getAirDensity(XmaxHeight_ref, "linsley")
+    rho_target = TargetShower._getAirDensity(XmaxHeight_target, "linsley")
+        
+    #krho =  1/np.sqrt(rho_ref/rho_target) # previous implementation
+    
+    ############fit Egeo #####
+    
+    def fit_broken_law(rho_bins):
+
+        Phi0 = 1010
+        gamma1 = -1.0047
+        gamma2 = 0.2222
+        rho_break  = 3.5e-4
+        beta = 2.5
+        rho0 = 1.87e-6
+        y = (Phi0*(rho_bins/rho0)**(-gamma1))*(1+ (rho_bins/rho_break)**\
+             ((gamma2- gamma1))/beta)**(-beta)
+    
+        return y
+    
+    def fit_whigh(x):
+
+        a = -41852.83493032
+        b = 781642.06891597
+        c = -2061529.47190934
+        d = 2488060.24421785
+        e = -1104757.3096756 
+        y = a + b*x+ c*x**2 + d*x**3 + e*x**4
+        return y
+
+    def fit_wlow(x):
+
+        a = -12181.07849176
+        b = 1052230.34544697
+        c = -3322672.24089232
+        d = 4324392.77382339
+        e = -2025673.01986316
+        y = a + b*x+ c*x**2 + d*x**3 + e*x**4
+        return y
+    
+    b = 1.194878
+    krho_ce = (rho_target**b)/(rho_ref**b)
+    CorrectBias = True
+    if(CorrectBias):     
+         krho_geo = (fit_broken_law(rho_target)/fit_broken_law(rho_ref))
+         krho_geo_high = (fit_whigh(rho_target*1e3)/fit_whigh(rho_ref*1e3))
+         krho_geo_low = (fit_wlow(rho_target*1e3)/fit_wlow(rho_ref*1e3))
+         
+         cerangle_ref = RefShower.get_cerenkov_angle()
+         cerangle_target = TargetShower.get_cerenkov_angle()
+    
+         kstretch = cerangle_ref/cerangle_target
+         w_target = RefShower.get_w()/kstretch
+    
+         Traces_Evxb = TargetShower.traces[:,2*Nant:3*Nant]
+
+         Traces_Evxb[:, (w_target<0.75*cerangle_target)] = \
+         Traces_Evxb[:, (w_target<0.75*cerangle_target)]*krho_geo_low
+         
+         Traces_Evxb[:, (w_target>=0.75*cerangle_target) & (w_target<=1.25*cerangle_target)] = \
+         Traces_Evxb[:, (w_target>=0.75*cerangle_target) & (w_target<=1.25*cerangle_target)]*krho_geo
+         
+         Traces_Evxb[:, (w_target>1.25*cerangle_target)] = \
+         Traces_Evxb[:, (w_target>1.25*cerangle_target)]*krho_geo_high
+         
+         scaled_traces_geo = Traces_Evxb
+         
+    scaled_traces_ce = TargetShower.traces[:,3*Nant:4*Nant]*krho_ce
             
     return scaled_traces_geo, scaled_traces_ce, xmax_target, krho_geo, krho_ce
     

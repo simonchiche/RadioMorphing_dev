@@ -318,7 +318,7 @@ class Shower:
         
         else:
             print("missing primary")  
-            sys.exit()
+            
     
     
     def _get_CRzenith(self):
@@ -344,6 +344,7 @@ class Shower:
     
         #Note: To be included in other functions
         zen = self.zenith
+
         GdAlt = self.glevel
         injh = self.injection
                 
@@ -351,6 +352,7 @@ class Shower:
     
         a = np.sqrt((Re + injh)**2. - (Re+GdAlt)**2 *np.sin(np.pi-np.deg2rad(zen))**2) - (Re+GdAlt)*np.cos(np.pi-np.deg2rad(zen))
         zen_inj = np.rad2deg(np.pi-np.arccos((a**2 +(Re+injh)**2 -Re**2)/(2*a*(Re+injh))))
+        
         
         return zen_inj    
 
@@ -638,8 +640,14 @@ def CerenkovStretch(RefShower, TargetShower, GroundPlane = True):
    
     
 def extractData(sim_file, Display = True):
+    Local = True
+    Lyon = not(Local)
     
-    simu_path = './' + sim_file
+    if(Local):
+        #print(sim_file, "PATH")
+        simu_path = './' + sim_file
+    elif(Lyon):
+        simu_path = sim_file
     if(Display): print(sim_file)
     InputFilename = simu_path
     filehandle = h5py.File(InputFilename, 'r')

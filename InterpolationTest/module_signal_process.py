@@ -9,6 +9,7 @@ from scipy.signal import butter, lfilter, hilbert
 from scipy.interpolate import UnivariateSpline
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
+import sys
 
 def add_noise(traces, vrms):
     """Add normal random noise on traces
@@ -107,7 +108,7 @@ def _butter_bandpass_filter(data, lowcut, highcut, fs):
     return lfilter(b, a, data)
 
 
-def filters(traces, FREQMIN=50.e6, FREQMAX=200.e6):
+def filters(traces, FREQMIN=5.e6, FREQMAX=50.e6):
     """ Filter signal e(t) in given bandwidth
     Parameters
     ----------
@@ -133,11 +134,11 @@ def filters(traces, FREQMIN=50.e6, FREQMAX=200.e6):
     >>> from signal_treatment import _butter_bandpass_filter
     ```
     """
-
+    #print(np.shape(traces))
     t = traces.T[0]
     t *= 1e-9  # from ns to s
     e = np.array(traces.T[1:, :])  # Raw signal
-
+    #sys.exit()
     # fs = 1 / np.mean(np.diff(t))  # Compute frequency step
     fs = round(1 / np.mean(np.diff(t)))  # Compute frequency step
     #print("Trace sampling frequency: ",fs/1e6,"MHz")
@@ -165,3 +166,11 @@ def filter_traces(Traces, n, time_sample):
         Traces_filtered[:,i + 2*n] = res[:,2]
         Traces_filtered[:,i + 3*n] = res[:,3]
     return Traces_filtered
+
+
+def filter_single_trace(Time, Efield, n, time_sample):
+    
+    traces = np.array([Time, Efield]).T
+    res = filters(traces, FREQMIN=50.e6, FREQMAX=200.e6)
+        
+    return res[:,1]

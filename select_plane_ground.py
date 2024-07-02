@@ -16,6 +16,8 @@ from interpolation_ground import SelectAntennasForInterpolationCorrected, \
 GetAntennaAnglesSimon, get_center, ComputeAntennaPhi, get_in_shower_plane
 import copy
 
+Local = True
+Lyon = not(Local)
 
 def select_zenith(target_zenith):
     
@@ -24,7 +26,8 @@ def select_zenith(target_zenith):
     
     # zenith of the ref library
     # To modify if we change the ref library
-    zenith_sim  = np.array([67.8, 74.8, 81.3, 83.9, 86.5])
+    # TODO: change in Lyon
+    zenith_sim  = np.array([65.5, 67.8, 74.8, 79.5, 82.7, 85.0, 86.5])
     
     # We use as reference shower the shower with the closest zenith from the
     # targeted one
@@ -120,7 +123,7 @@ def select_path(path, dplane, selected_azimuth):
     #plans perp en prenant plan test et plan simulé différent
     '''
     NantDes = len(AntennasAll)
-    #print(IndexAll)
+    
         
     return IndexAll, DsimAll, PathAll, NantDes #sim[min_index], dsim[min_index]
 
@@ -169,7 +172,11 @@ def select_plane_groundOld(primary, energy, zenith, azimuth, \
     target_zenith = select_zenith(zenith)
     
     # We infer the path to the reference shower
-    path = "./Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
+    if(Local):
+        path = "./Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
+                      %(target_zenith)
+    elif(Lyon):
+            path = "/sps/trend/chiche/RadiomorphingUptoDate/Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
                       %(target_zenith)
     
     target_azimuth = select_azimuth(path, azimuth)
@@ -179,7 +186,7 @@ def select_plane_groundOld(primary, energy, zenith, azimuth, \
     CorrectPlane(IndexAll, DsimAll, PathAll, cross_check, zenith, azimuth, Xmax, NantDes, shower)
     
     print(IndexAll, DsimAll)
-    sys.exit()
+    #sys.exit()
     selected_plane, dsim = select_pathOld(path, dplane, target_azimuth)
     Old = True
     if(Old): dplane = np.mean(dplane)
@@ -194,20 +201,25 @@ def select_plane_ground(primary, energy, zenith, azimuth, \
     get_distplane(zenith, azimuth, cross_check[:,0], cross_check[:,1], \
                   cross_check[:,2], Xmax[0], Xmax[1], Xmax[2])
     #dplane = np.mean(dplane)
-
+    
     # We get the closest reference zenith and and azimuth angle
     target_zenith = select_zenith(zenith)
     
     # We infer the path to the reference shower
-    path = "./Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
+    if(Local):
+        path = "./Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
                       %(target_zenith)
-    
+    elif(Lyon):
+            path = "/sps/trend/chiche/RadiomorphingUptoDate/Simulations/SelectedPlane/theta_%.1f/*.hdf5" \
+                      %(target_zenith)
     target_azimuth = select_azimuth(path, azimuth)
     
-    IndexAll, DsimAll, PathAll, NantDes = select_path(path, dplane, target_azimuth)       
+    
+    IndexAll, DsimAll, PathAll, NantDes = select_path(path, dplane, target_azimuth)
+    #print(DsimAll)      
     IndexAll, DsimAll, PathAll  = \
     CorrectPlane(IndexAll, DsimAll, PathAll, cross_check, zenith, azimuth, Xmax, NantDes, shower)
-                
+    
     return IndexAll, DsimAll, PathAll, dplane
 
 
@@ -248,12 +260,33 @@ def print_plane(RefShower, TargetShower, target_dplane):
 # =============================================================================
 #                Correct the planes from the antennas selection
 # =============================================================================
-    
+
+#The problem here is to find to which plane should be associated to each
+# antenna. At this stage of the code, a first association has already been
+# performed simply based on the comparions between the distance of the antenna
+# to Xmax and the distance of the plane from Xmax. Yet, some antennas that were
+# associated to a given plane may in practice rely on the interpolation
+# from antennas that are below the ground for this given plane. The function
+# below aim to correct this.
     
 def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
-                 Zenith, Azimuth, xmaxposition, NantDes, shower):  
+                 Zenith, Azimuth, xmaxposition, NantDes, shower):
+    #print(IndexAll, DsimAll, PathAll)
+    #DsimAll =  np.delete(DsimAll, [2])
+    #PathAll =  np.delete(PathAll, [2])
+    #IndexAll = np.delete(IndexAll, [2])
+    #print(DsimAll)
+    #print(PathAll)
+    #print(IndexAll.shape)
+    #print(np.array(DsimAll).shape) 
+    #print(np.array(PathAll).shape)
+    print("---------------")
+    print(DsimAll, PathAll)
+    #sys.exit()
     IndexAllCorrected = []
     STOP = 0
+    ##TODO: add to Lyon
+    VoidPlanes = []
     # Loop over each antenna group
     # TODO: remove after tests
     for i in range(len(DsimAll)):
@@ -269,13 +302,15 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
         SelectedPlane.fluctuations = shower['fluctuations']
         SelectedPlane.filter = shower["filter"]
         Inclination = SelectedPlane.inclination
-        SelectedPlane.xmaxpos = xmaxposition        
+        SelectedPlane.xmaxpos = xmaxposition 
+        Nant = SelectedPlane.InitialShape
         
         SelectedPlane.pos = CerenkovStretch(RefPlane, SelectedPlane, False)[0]  
         SelectedPlane.pos = CerenkovStretch(RefPlane, SelectedPlane, False)[0] 
            
         SelectedPlane.pos, SelectedPlane.traces = SelectedPlane.GetinGeographicFrame()        
-        position_sims = SelectedPlane.pos
+        xsim, ysim, zsim = SelectedPlane.pos[:,0], SelectedPlane.pos[:,1], SelectedPlane.pos[:,2]
+        position_sims =  np.transpose(np.array([xsim[:Nant], ysim[:Nant], zsim[:Nant]]))
         positions_des = TargetAntennas[IndexAll[i].astype(int)]
         
         
@@ -285,15 +320,16 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
         #plt.scatter(pos_sims_angles[:,1], pos_sims_angles[:,2])
         #plt.show()
         IndexDplane = []
-       
+        #print(DsimAll[i])
         # Loop over each antenna of each group
+
+            
         for j in range(len(IndexAll[i].astype(int))):
             
             SelectedI, SelectedII, SelectedIII, SelectedIV =\
             SelectAntennasForInterpolationCorrected(pos_sims_angles,\
                     pos_des_angle[j], IndexAll[i][j], False, discarded = [])
             
-            #print(j, "--", SelectedI, eSelectedII, SelectedIII, SelectedIV)
             ConditionI = np.sum(SelectedPlane.traces[:,SelectedI])
             ConditionII = np.sum(SelectedPlane.traces[:,SelectedII])
             ConditionIII = np.sum(SelectedPlane.traces[:,SelectedIII])
@@ -301,21 +337,56 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
             
             if((ConditionI != 0.0) and (ConditionII != 0.0) and \
                (ConditionIII != 0.0) and (ConditionIV != 0.0)):
+                #print(j, IndexAll[i][j], "--", SelectedI, SelectedII, SelectedIII, SelectedIV)
                 IndexDplane.append(IndexAll[i][j])
+                DisplayResult = False
+                if((IndexAll[i][j] == 71) & (DisplayResult)):
+                    print("sim")
+                    print("index", "phi", "omega", pos_sims_angles[110:130,:])
+                    print("des")
+                    print("index", "phi", "omega", pos_des_angle[19])
+                    plt.scatter(pos_sims_angles[:,1], pos_sims_angles[:,2], s = 0.1)
+                    plt.scatter(pos_sims_angles[71,1], pos_sims_angles[71,2], marker = '*')
+                    plt.scatter(pos_sims_angles[SelectedI,1], pos_sims_angles[SelectedI,2])
+                    plt.scatter(pos_sims_angles[SelectedII,1], pos_sims_angles[SelectedII,2])
+                    plt.scatter(pos_sims_angles[SelectedIII,1], pos_sims_angles[SelectedIII,2])
+                    plt.scatter(pos_sims_angles[SelectedIV,1], pos_sims_angles[SelectedIV,2])
+                    plt.show()
             else:
+                #print(i, DsimAll[i])
                 IndexAll[i+1] = np.append(IndexAll[i+1],IndexAll[i][j])
 
         STOP = STOP + len(IndexDplane)
         #print("STOP", STOP)
-        IndexAllCorrected.append(IndexDplane)
+        ## TODO: add to Lyon
+        if(len(IndexDplane)!=0):
+            IndexAllCorrected.append(IndexDplane)
+        else:
+            VoidPlanes.append(i)
+            #print("OULALAAAAAAA")
+            #print(DsimAll[i])
+            #DsimAll =  np.delete(DsimAll, [i])
+            #PathAll =  np.delete(PathAll, [i])
         if(STOP==NantDes): break
     #print(IndexAllCorrected, DsimAll)
-    #DsimAll = DsimAll[1]#len(IndexAllCorrected)]
-    #PathAll = PathAll[1]#len(IndexAllCorrected)]
-    
-    DsimAll = DsimAll[:len(IndexAllCorrected)]
-    PathAll = PathAll[:len(IndexAllCorrected)]
-    
-    
+    ##TODO: add to lyon
+    VoidPlanes = np.array(VoidPlanes)
+    for k in range(len(VoidPlanes)):
+        DsimAll =  np.delete(DsimAll, [k])
+        PathAll =  np.delete(PathAll, [k])
+        
+    TestOnePlane =  False
+    if(TestOnePlane):
+        print("Enter Plane Index")
+        print(DsimAll)
+        PlaneIndex = int(input())
+        DsimAll = DsimAll[PlaneIndex]
+        PathAll = PathAll[PlaneIndex]
+    else:
+        DsimAll = DsimAll[:len(IndexAllCorrected)]
+        PathAll = PathAll[:len(IndexAllCorrected)]
+
+    #sys.exit()
+    print(IndexAllCorrected)
     return IndexAllCorrected, DsimAll, PathAll
     

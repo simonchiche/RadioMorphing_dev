@@ -18,6 +18,10 @@ from zhairesppath import GetZHSEffectiveactionIndex, GetEffectiveactionIndex
 #sys.path.append(ZHAIRESPYTHON)
 import hdf5fileinout as hdf5io
 
+Local = True
+Lyon = not(Local)
+
+
 def ComputeAntennaPhi(AntennaX,AntennaY, ReferenceDirection=np.array([1,0])):
 # WARNING: BE SURE THAT ANTENNA POSITIONS AND ReferenceDirection are with respect to the core of the shower
 #this functions computes the angle (in degrees) in the ground plane between the antena position and a reference direction (that could be another antena position
@@ -560,6 +564,10 @@ def GetAntennaAnglesSimon(Zenith,Azimuth, xmax_position,positions_sims,positions
     pos_sims_angles = np.transpose([np.zeros(len(phi_sims)), phi_sims, w_sims_angles])
     pos_des_angles = np.transpose([np.zeros(len(phi_des)), phi_des, w_des_angles])
     
+    #print(np.shape(pos_sims_angles))
+    #print(np.shape(pos_des_angles))
+
+    
     return pos_sims_angles, pos_des_angles, distanceratio #phi_sims, phi_des 
 
 #gets as input the positions of the simulated antennas in (antid, phi, alpha) and the position of the desired antena in phi,alpha)
@@ -655,7 +663,15 @@ def SelectAntennasForInterpolation(pos_sims_angles,pos_des_angle, i, discarded):
         Selected_II=index_II[1][0]
         Selected_III=index_III[1][0]
     Selected_IV=index_IV[0][0]
-    
+    '''
+    plt.scatter(pos_sims_angles[:,1], pos_sims_angles[:,2], s = 0.1)
+    plt.scatter(pos_sims_angles[71,1], pos_sims_angles[71,2], marker = '*')
+    plt.scatter(pos_sims_angles[Selected_I,1], pos_sims_angles[Selected_I,2])
+    plt.scatter(pos_sims_angles[Selected_II,1], pos_sims_angles[Selected_II,2])
+    plt.scatter(pos_sims_angles[Selected_III,1], pos_sims_angles[Selected_III,2])
+    plt.scatter(pos_sims_angles[Selected_IV,1], pos_sims_angles[Selected_IV,2])
+    plt.show()
+    '''
     
     return Selected_I,Selected_II,Selected_III,Selected_IV
 
@@ -991,7 +1007,7 @@ def ComputeTimeAntennas(TargetShower):
     return desiredtime
     
 
-def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, antennamin=0, antennamax=159, DISPLAY=False, usetrace='efield', FillOutliersWithZeros=True):
+def do_interpolation_hdf5(TargetShower, IndexAntennas, VoltageTraces, FilteredVoltageTraces, antennamin=0, antennamax=159, DISPLAY=False, usetrace='efield', FillOutliersWithZeros=True):
     '''
     Reads in arrays, looks for neighbours, calls the interpolation and saves the traces
 
@@ -1100,7 +1116,7 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
         
         #select the four antennas for the inerpolation for this desired antenna
         Selected_I,Selected_II,Selected_III,Selected_IV = SelectAntennasForInterpolationCorrected(pos_sims_angles,pos_des_angles[i], i, True, discarded)
-        print(i, "--", Selected_I,Selected_II,Selected_III,Selected_IV)
+        #print(i, "--", Selected_I,Selected_II,Selected_III,Selected_IV)
         Skip=False
         for tracetype in usetracelist:
             #print("computing for "+tracetype+" on desired antenna "+str(i))
@@ -1113,7 +1129,7 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
                     ntbins = len(EfieldTraces[0][:,0])
                     desired_trace=np.zeros((ntbins,4))
                 else:
-                    print("antenna outside of the starshape, interpolation not performed, antenna removed",i)
+                    #print("antenna outside of the starshape, interpolation not performed, antenna removed",i)
                     
                     if(Skip==False): #to do it only once
                        Skip=True
@@ -1143,11 +1159,13 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
     No_data = np.zeros(len(desired_traceAll))*np.nan 
     
     counter = 1
-
     for i in range(len(desired)):
         #print(pos_des_angles[i][2])
         if(i != discarded[k]):
-            np.savetxt("./OutputDirectory/DesiredTraces_%d.txt" %i, desired_traceAll[i -k])
+            if(Local):
+                np.savetxt("./OutputDirectory/DesiredTraces_%d.txt" %IndexAntennas[i], desired_traceAll[i -k])
+            elif(Lyon):
+                np.savetxt("/sps/trend/chiche/RadiomorphingUptoDate/OutputDirectory/DesiredTraces_%d.txt" %IndexAntennas[i], desired_traceAll[i -k])
             efield_interpolated.append(desired_traceAll[i -k])
             w_interpolated.append(pos_des_angles[i][2])
 
@@ -1200,4 +1218,3 @@ def do_interpolation_hdf5(TargetShower, VoltageTraces, FilteredVoltageTraces, an
     '''
     #print(w_interpolated)
     return efield_interpolated, w_interpolated
-

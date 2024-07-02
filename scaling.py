@@ -6,7 +6,7 @@ Created on Tue Mar  2 15:28:02 2021
 @author: chiche
 """
 
-from ModuleScale import EnergyScale, GeomagneticScale, DensityScale, CerenkovStretch
+from ModuleScale import EnergyScale, GeomagneticScale, DensityScale, DensityScaleBiasCorrected, CerenkovStretch
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -22,15 +22,21 @@ def myscale(RefShower, TargetShower, simxmax):
     
     # Energy scaling
     TargetShower.traces[:,Nant:], kE = EnergyScale(RefShower, TargetShower)
-    
+
     # Geomagnetic scaling
     TargetShower.traces[:,2*Nant:3*Nant], kgeo = \
     GeomagneticScale(RefShower, TargetShower)
     
     # Density scaling
+    """
     TargetShower.traces[:,2*Nant:3*Nant], TargetShower.traces[:,3*Nant:4*Nant]\
     ,TargetShower.xmaxpos, krho_geo, krho_ce = \
-    DensityScale(RefShower, TargetShower) 
+    DensityScaleBiasCorrected(RefShower, TargetShower) 
+    """
+
+    TargetShower.traces[:,2*Nant:3*Nant], TargetShower.traces[:,3*Nant:4*Nant]\
+    ,TargetShower.xmaxpos, krho_geo, krho_ce = \
+    DensityScale(RefShower, TargetShower)
     
     TargetShower.xmaxpos = simxmax # for the tests only 
         

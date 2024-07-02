@@ -15,7 +15,7 @@ import sys
 
 
 def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
-                       Display = True):
+                       IndexAll, Display = True):
     
     
 # =============================================================================
@@ -26,8 +26,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     NantRefStarshape = SimulatedShower.InitialShape
     NantRefLayout = SimulatedShower.NantTraces
     NantRefCrossCheck = NantRefLayout - NantRefStarshape
-    NantTargetLayout = 176#TargetShower.nant - TargetShower.InitialShape        
-    
+    NantTargetLayout = TargetShower.nant - TargetShower.InitialShape   
     filtering = TargetShower.filter
     if filtering:
         time_sample = int(len(Traces[:,0]))
@@ -73,7 +72,6 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     print(NantTargetLayout)
     #sys.exit()
     for i in range(NantTargetLayout):
-        
         # We load the Target traces
         Load = True
         try:
@@ -87,6 +85,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             rm_peak.append(np.nan)
             zh_peak.append(np.nan)
             error_peak.append(np.nan)
+            #print("OULAH")
         if(Load):
             targetTime, targetEx, targetEy, targetEz = \
             efield_interpolated[i][:,0], efield_interpolated[i][:,1], \
@@ -127,7 +126,12 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
 # =============================================================================
 
             # We compute the total Efield
+            
             refEtot =  np.sqrt(refEx**2 + refEy**2 + refEz**2)
+            targetEx = targetEx.astype(float) #TODO: change in Lyon
+            targetEy = targetEy.astype(float) #TODO: change in Lyon
+            targetEz = targetEz.astype(float) #TODO: change in Lyon
+
             targetEtot = np.sqrt(targetEx**2 + targetEy**2 + targetEz**2)
             
             # We shift the Traces time window
@@ -139,8 +143,10 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             #if(max(targetEtot)>1e4):
                 
             #print(max(targetEtot), max(refEtot[i]))
-            Ndisplay = 60
-            if((Display) & (i<Ndisplay)):
+            
+            Ndisplay = 176
+            # Third option only if one plane is tested
+            if((Display) & (i<Ndisplay)):# & (np.min(abs(IndexAll-i)) == 0) ):
                 
                 plt.plot(refTimeArray, refEtot[i], label = "simulation") 
                 plt.plot(targetTimeArray, targetEtot, label = "interpolation")
@@ -156,10 +162,25 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             
             PeakrefEtot = max(refEtot[i])
             PeaktargetEtot = max(targetEtot)
-            
-            error_peak.append((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
-            #print((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
-            rm_peak.append(PeaktargetEtot)
-            zh_peak.append(PeakrefEtot)                  
+            #print(PeaktargetEtot)
+        
+            # condition when we test only one plane so not all the antennas
+            # this conditon checks wheter i is contained in IndexAll, i.e., 
+            # if the efield for the i-antenna was computed.
+            TestOnePlane = False
+            if(TestOnePlane):
+                if(np.min(abs(IndexAll-i)) == 0):
+                    #print(i)
+                    error_peak.append((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
+                    #print((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
+                    rm_peak.append(PeaktargetEtot)
+                    zh_peak.append(PeakrefEtot)                  
+            else:
+                    #print(i)
+                    error_peak.append((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
+                    #print((PeakrefEtot- PeaktargetEtot)/PeakrefEtot)
+                    rm_peak.append(PeaktargetEtot)
+                    zh_peak.append(PeakrefEtot)     
     
+                
     return np.array(error_peak), np.array(rm_peak), np.array(zh_peak)
