@@ -1,0 +1,8 @@
+!*.py
+/DesiredPositions/*
+/DesiredPositions/*
+/result_scaling/*
+/Miscellaneous
+/Miscellaneous/*
+/RMFilterTests/Plots
+/RMFilterTests/Plots/*
