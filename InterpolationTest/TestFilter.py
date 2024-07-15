@@ -23,7 +23,7 @@ import scipy
 from scipy.signal import hilbert
 import sys
 from scipy.fftpack import rfft, fft
-
+import subprocess
 
 def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
                        IndexAll, Display = True):
@@ -103,7 +103,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
            
             # In case we want to filter the reference and the target traces 
             #after the interpolation
-            post_filtering = True
+            post_filtering = False
             if post_filtering:
                 
                 # Filtering the reference Traces
@@ -231,18 +231,23 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
                     zh_peak.append(np.nan)
                     error_peak.append(np.nan)
     
-    
-    SaveTraces = False 
+    path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
+    SaveDir = "E4_th63_phi0_0"
+    cmd = "mkdir -p " + path + SaveDir
+    p =subprocess.Popen(cmd, cwd=os.getcwd(), shell=True)
+    stdout, stderr = p.communicate()
+
+    SaveTraces = True 
     if(SaveTraces):
-        np.savetxt("/Users/chiche/Desktop/ZHStime.txt", refTimeArray)
-        np.savetxt("/Users/chiche/Desktop/ZHSx.txt", refEx)
-        np.savetxt("/Users/chiche/Desktop/ZHSy.txt", refEy)
-        np.savetxt("/Users/chiche/Desktop/ZHSz.txt", refEz)
+        np.savetxt(path + SaveDir + "/ZHStime.txt", refTimeArray)
+        np.savetxt(path + SaveDir + "/ZHSx.txt", refEx)
+        np.savetxt(path + SaveDir + "/ZHSy.txt", refEy)
+        np.savetxt(path + SaveDir + "/ZHSz.txt", refEz)
         
-        np.savetxt("/Users/chiche/Desktop/RMtime.txt", np.array(RMtime))
-        np.savetxt("/Users/chiche/Desktop/RMx.txt", np.array(RMx))
-        np.savetxt("/Users/chiche/Desktop/RMy.txt", np.array(RMy))
-        np.savetxt("/Users/chiche/Desktop/RMz.txt", np.array(RMz))
-        np.savetxt("/Users/chiche/Desktop/RMindex.txt", np.array(index))
+        np.savetxt(path + SaveDir + "/RMtime.txt", np.array(RMtime))
+        np.savetxt(path + SaveDir + "/RMx.txt", np.array(RMx))
+        np.savetxt(path + SaveDir + "/RMy.txt", np.array(RMy))
+        np.savetxt(path + SaveDir + "/RMz.txt", np.array(RMz))
+        np.savetxt(path + SaveDir + "/RMindex.txt", np.array(index))
                 
     return np.array(error_peak), np.array(rm_peak), np.array(zh_peak)

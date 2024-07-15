@@ -12,17 +12,19 @@ import matplotlib.pyplot as plt
 from module_signal_process import filter_traces, filter_single_trace
 from scipy.signal import hilbert
 
-ZHStime = np.loadtxt("/Users/chiche/Desktop/ZHStime.txt")
-ZHSx = np.loadtxt("/Users/chiche/Desktop/ZHSx.txt")
-ZHSy = np.loadtxt("/Users/chiche/Desktop/ZHSy.txt")
-ZHSz = np.loadtxt("/Users/chiche/Desktop/ZHSz.txt")
+SaveDir = "E4_th63_phi0_0"
+path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
+ZHStime = np.loadtxt(path + SaveDir + "/ZHStime.txt")
+ZHSx = np.loadtxt(path + SaveDir + "/ZHSx.txt")
+ZHSy = np.loadtxt(path + SaveDir + "/ZHSy.txt")
+ZHSz = np.loadtxt(path + SaveDir + "/ZHSz.txt")
 
+RMtime = np.loadtxt(path + SaveDir + "/RMtime.txt")
+RMx = np.loadtxt(path + SaveDir + "/RMx.txt")
+RMy = np.loadtxt(path + SaveDir + "/RMy.txt")
+RMz = np.loadtxt(path + SaveDir + "/RMz.txt")
+index = np.loadtxt(path + SaveDir + "/RMindex.txt")
 
-RMtime = np.loadtxt("/Users/chiche/Desktop/RMtime.txt")
-RMx = np.loadtxt("/Users/chiche/Desktop/RMx.txt")
-RMy = np.loadtxt("/Users/chiche/Desktop/RMy.txt")
-RMz = np.loadtxt("/Users/chiche/Desktop/RMz.txt")
-index = np.loadtxt("/Users/chiche/Desktop/RMindex.txt")
 
 def CorrectPadding(E1, E2, Nant, index):
     
