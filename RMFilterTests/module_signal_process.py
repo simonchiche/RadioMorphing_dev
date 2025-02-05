@@ -108,7 +108,7 @@ def _butter_bandpass_filter(data, lowcut, highcut, fs):
     return lfilter(b, a, data)
 
 
-def filters(traces, FREQMIN=5.e6, FREQMAX=50.e6):
+def filters(traces, FREQMIN=900.e6, FREQMAX=910.e6):
     """ Filter signal e(t) in given bandwidth
     Parameters
     ----------
@@ -135,6 +135,7 @@ def filters(traces, FREQMIN=5.e6, FREQMAX=50.e6):
     ```
     """
     #print(np.shape(traces))
+    #sys.exit()
     t = traces.T[0]
     t *= 1e-9  # from ns to s
     e = np.array(traces.T[1:, :])  # Raw signal
@@ -155,13 +156,14 @@ def filters(traces, FREQMIN=5.e6, FREQMAX=50.e6):
 
     return res.T
 
-def filter_traces(Traces, n, time_sample):
+def filter_traces(Traces, n, time_sample, fmin, fmax):
    
     Traces_filtered = np.zeros([time_sample, 4*n])
+    #sys.exit()
     #print(n)
     for i in range(n):
         traces = np.array([Traces[:,i], Traces[:,i + n], Traces[:, i + 2*n], Traces[:, i +3*n]]).T
-        res = filters(traces, FREQMIN=50.e6, FREQMAX=200.e6)
+        res = filters(traces, fmin, fmax)
         Traces_filtered[:,i] = res[:,0]
         Traces_filtered[:,i + n] = res[:,1]
         Traces_filtered[:,i + 2*n] = res[:,2]

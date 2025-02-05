@@ -89,6 +89,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             efield_interpolated[i][:,0], efield_interpolated[i][:,1], \
             efield_interpolated[i][:,2], efield_interpolated[i][:,3]
             
+            print("target", np.shape(targetTime))
             RMtime.append(targetTime)
             RMx.append(targetEx)
             RMy.append(targetEy)
@@ -144,18 +145,12 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             refTimeArray = 0.5*np.arange(0, len(refEtot[i]), 1)
             targetTimeArray = 0.5*np.arange(0, len(targetEtot), 1)
             
+            ### Post filtering applied within the loop to both the reference (simulated) ZHS shower and the target (scaled) RM shower
             post_filtering = False
             if post_filtering: refEtot[i] = \
-            filter_single_trace(refTimeArray, refEtot[i], 1, len(refEtot[i]))
+            filter_single_trace(refTimeArray, refEy[i], 1, len(refEtot[i]))
             if post_filtering: targetEtot = \
-            filter_single_trace(targetTimeArray, targetEtot, 1, len(targetEtot))
-        
-
-            #if(max(targetEtot)>1e4):
-                
-            #print(max(targetEtot), max(refEtot[i]))
-            
-
+            filter_single_trace(targetTimeArray, targetEy, 1, len(targetEtot))
             
             Ndisplay = 40
             start = 80
@@ -232,11 +227,12 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
                     error_peak.append(np.nan)
     
     path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
-    SaveDir = "E4_th63_phi0_0"
+    SaveDir = "E1_th75_phi0_4"
     cmd = "mkdir -p " + path + SaveDir
     p =subprocess.Popen(cmd, cwd=os.getcwd(), shell=True)
     stdout, stderr = p.communicate()
-
+    #print(np.shape(RMtime))
+    #sys.exit()
     SaveTraces = True 
     if(SaveTraces):
         np.savetxt(path + SaveDir + "/ZHStime.txt", refTimeArray)

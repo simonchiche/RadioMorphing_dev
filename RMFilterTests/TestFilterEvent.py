@@ -9,164 +9,132 @@ Created on Fri Jun 21 16:35:15 2024
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
+import module_signal_process
+import importlib
+importlib.reload(module_signal_process)
 from module_signal_process import filter_traces, filter_single_trace
+from ModuleFilter import LoadData, CorrectPadding, ApplyFilter, MaxHilbert, GetRelError, CompareTraces, CompareTF, PlotError, CompareGivenTrace, PlotErrorVsAmplitude, GetErrvsTrigg, PlotErrvsTrigg, Plot_rms_ErrvsTrig, PlotHistErr
 from scipy.signal import hilbert
 
-SaveDir = "E4_th63_phi0_0"
+### Loading the data
+MainDir = "RMresults_11_12_24" 
+SaveDir = "E1_th81_phi0_0"
+Filter = False
+TriggerThreshold =110
+fmin = 80e6
+fmax = 200e6
+if(TriggerThreshold == 0): triggLabel = "noTrigg"
+if(TriggerThreshold == 60): triggLabel = "3sigma"
+if(TriggerThreshold == 110): triggLabel = "5sigma"
+if(fmin == 30e6): flabel = "30_80"
+if(fmin == 50e6): flabel = "50_200"
+if(not(Filter)): flabel = "full_band"
+method = "peak"
+
+band = flabel + "_" + triggLabel + "_" + method
+
+SavePath = "/Users/chiche/Desktop/" + MainDir + "/" + SaveDir + "_" + band
 path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
-ZHStime = np.loadtxt(path + SaveDir + "/ZHStime.txt")
-ZHSx = np.loadtxt(path + SaveDir + "/ZHSx.txt")
-ZHSy = np.loadtxt(path + SaveDir + "/ZHSy.txt")
-ZHSz = np.loadtxt(path + SaveDir + "/ZHSz.txt")
+ZHStime, ZHSx, ZHSy, ZHSz, RMtime, RMx, RMy, RMz, index, Nant =  LoadData(SaveDir, path)
 
-RMtime = np.loadtxt(path + SaveDir + "/RMtime.txt")
-RMx = np.loadtxt(path + SaveDir + "/RMx.txt")
-RMy = np.loadtxt(path + SaveDir + "/RMy.txt")
-RMz = np.loadtxt(path + SaveDir + "/RMz.txt")
-index = np.loadtxt(path + SaveDir + "/RMindex.txt")
-
-
-def CorrectPadding(E1, E2, Nant, index):
-    
-    k= 0
-    RME = []
-    for i in range(Nant):
-         if(i == index[k]):
-             RME.append(np.pad(E2[k,:], (0, len(E1[i]) - len(E2[k,:])), 'constant'))
-             
-             k = k +1
-    return np.array(RME)
-
-Nant = len(ZHSx)
-dt = 0.5/1e9
-k=0
-Nplot = 0
-Ndisplay = 120
-Filter = True
-
+### Padding correction
+Nmax = int(max(index))
 Padding = False
 if(Padding):
     RMx = CorrectPadding(ZHSx, RMx, Nant, index)
     RMy = CorrectPadding(ZHSy, RMy, Nant, index)
     RMz = CorrectPadding(ZHSz, RMz, Nant, index)
-    
     RMtime = ZHStime
 
-RMpeak, ZHSpeak, error = \
-np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx))
 
-for i in range(Nant):
-    
+### INITIALISATION
+dt = 0.5/1e9
+k=0
+Nplot = 0
+Ndisplay = 120
+
+RMpeak, ZHSpeak, ZHSfilteredpeak, error = \
+np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx))
+#print(index)
+#print(len(index), Nant)
+#sys.exit()
+# LOOP OVER THE ANTENNAS
+### Si jamais dans index la dernier antenne (176) n'a pas pu etre  morphee alors une iteration en k en trop est ajoutee, dans l'ideal il faudrait modifier le code pour prendre en compte ce cas, je le corrige ici de maniere grossiere en imposant
+### for i in range(Nmax) au lieu de for i in range(Nant), où Nmax = max(index) idem pour correct padding
+Nmax = int(max(index))
+for i in range(Nmax):
+    # We skip the antennas for which the RM failed
     if(i == index[k]):
-        
+        ### FILTERING THE TRACES
+        # Even if we dont filter we still set a trigger condition on the filtered ZHS signals
+        ZHS_filtered_x, ZHS_filtered_y, ZHS_filtered_z = np.copy(ZHSx), np.copy(ZHSy), np.copy(ZHSz)
+        ZHS_filtered_x[i,:], ZHS_filtered_y[i,:], ZHS_filtered_z[i,:] =  ApplyFilter(ZHStime, ZHS_filtered_x[i,:], ZHS_filtered_y[i,:], ZHS_filtered_z[i,:], i, 30e6, 80e6)
+       
+        abs_arrays = [np.abs(ZHS_filtered_x[i,:]), np.abs(ZHS_filtered_y[i,:]), np.abs(ZHS_filtered_z[i,:])]
+        max_index = np.argmax([np.max(arr) for arr in abs_arrays])
+        ZHSmain  = [ZHS_filtered_x, ZHS_filtered_y, ZHS_filtered_z][max_index]
+        #print(np.diff(ZHSmain, ZHS_filtered_x)),
         if(Filter):
-            # ZHS
-            time_sample = int(len(ZHStime))
-            ZHSTrace = np.transpose\
-            (np.array([ZHStime, ZHSx[i,:], ZHSy[i,:], ZHSz[i,:]]))
-            ZHSfiltered = \
-            filter_traces(ZHSTrace, 1, time_sample)
-                
-            ZHSx[i,:], ZHSy[i,:], ZHSz[i,:] = ZHSfiltered [:,1], \
-            ZHSfiltered [:,2], ZHSfiltered [:,3]
-            
-            # RM
-            time_sample = len(RMx[0,:])
+            #ZHS traces 
+            ZHSx[i,:], ZHSy[i,:], ZHSz[i,:] = ApplyFilter(ZHStime, ZHSx[i,:], ZHSy[i,:], ZHSz[i,:], i, fmin, fmax)
+            ZHSmain_true = [ZHSx, ZHSy, ZHSz][max_index]
+            # Scaled RM traces
             if(Padding):
-                RMTrace = np.transpose\
-                (np.array([RMtime, RMx[k,:], RMy[k,:], RMz[k,:]]))
+                RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(RMtime, RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
             else:
-                RMTrace = np.transpose\
-                (np.array([RMtime[k,:], RMx[k,:], RMy[k,:], RMz[k,:]]))
-                
-            RMfiltered = \
-            filter_traces(RMTrace, 1, time_sample)
+                #print(RMtime)
+                #RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(np.array(RMtime[k,:]), RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
+                RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(RMtime[k,:], RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
+                                                                                                               
             
-            RMx[k,:], RMy[k,:], RMz[k,:] = RMfiltered [:,1], \
-            RMfiltered [:,2], RMfiltered [:,3]
-            
-            
-        ### Computation of the error   
-        RMpeak[k] = max(abs(hilbert(RMy[k,:])))
-        ZHSpeak[k]=  max(abs(hilbert(ZHSy[i,:])))
+        ### COMPUTATION OF THE ERROR
+        if(method == "peak"):  RMpeak[k] = MaxHilbert(RMy[k,:])
+        if(method == "sum"):  RMpeak[k] =np.sum(abs(hilbert(RMx[k,:])))
+        if(method == "peak"): ZHSpeak[k]= MaxHilbert(ZHSy[i,:]) 
+        if(method == "sum"): ZHSpeak[k]=  np.sum(abs(hilbert(ZHSx[i,:])))
+        ZHSfilteredpeak[k] = MaxHilbert(ZHSmain[i,:])
         error[k] =  (ZHSpeak[k] - RMpeak[k])/ZHSpeak[k]
+
         
-        #
-        if((Nplot<Ndisplay) & (max(abs(ZHSy[i,:]))>0) & (k>100)):
-            print(k)
-            plt.plot(abs(hilbert(ZHSy[i,:])))
-            plt.plot(abs(hilbert(RMy[k,:])))
-            plt.show()
+        # PLOTTING THE RESULTS
+        if((Nplot<Ndisplay) & (max(abs(ZHSmain[i,:]))>60) & (k>0)):
+            print(i)
+            ### Trace comparison
+            #print(k)
+            PlotTraces = True
+            if(PlotTraces): CompareTraces(RMy[k,:],ZHSy[i,:])
             
-            TF = False
+            ### Fourier transform
+            TF = True
             if(TF):
-                TFzhs = np.fft.fft(ZHSy[i,:])
-                Nzhs = len(ZHSy[i,:])
-                xf_zhs = np.fft.fftfreq(Nzhs, dt)
-                 
-                TFrm = np.fft.fft(RMy[k,:])
-                Nrm = len(RMy[k,:])
-                xf_rm = np.fft.fftfreq(Nrm, dt)
-                
-                plt.plot(xf_zhs[:Nzhs // 2]/1e6, 1.0/Nzhs * np.abs(TFzhs)[:Nzhs // 2])
-                plt.plot(xf_rm[:Nrm // 2]/1e6, 1.0/Nrm * np.abs(TFrm)[:Nrm // 2])
-                plt.ylabel("TF")
-                plt.xlim(0,400)
-                plt.show()
+                CompareTF(ZHSy[i,:], RMy[k,:], dt)
             
             Nplot = Nplot + 1
+        #print(i,k)
         k = k +1
 
 
-# Plot error
-plt.plot(error)
-plt.show()
-print(np.std(error))
+# PLOTTING ERROR RESULTS
+# Plot given trace
+ant_id = 6
+#CompareGivenTrace(ant_id, index, ZHSx, RMx)
+
+# Error
+PlotError(error, ZHSfilteredpeak, TriggerThreshold, SavePath)
+
+# Error vs amplitude
+PlotErrorVsAmplitude(1, error, ZHSpeak, SavePath)
+
+# Error vs trigger threshold
+#trigger, ErrVsTrigg, STDvsTrigg = GetErrvsTrigg(500, ZHSfilteredpeak,error)
+
+# RMS Error vs trigger threshold
+#PlotErrvsTrigg(trigger, ErrVsTrigg) 
+#Plot_rms_ErrvsTrig(trigger, STDvsTrigg)
 
 
-l = 6
-l2 = int(index[l])
-plt.plot(abs(hilbert(ZHSy[l,:])))
-plt.plot(abs(hilbert(RMy[l2,:])))
-plt.xlim(300,800)
-plt.show()
-
-
-plt.plot(abs(error)*1e3, label = r"error $\times$ 10000")
-plt.plot(ZHSpeak, label = "ZHS peak [50-200 MHz]")
-#plt.yscale("log")
-plt.xlabel("Antenna ID")
-plt.legend()
-plt.savefig("/Users/chiche/Desktop/Peak_vs_error_lin.pdf")
-plt.show()
-
-
-trigger = np.linspace(0,500,51)
-max_error  = np.zeros(len(trigger))
-std = np.zeros(len(trigger))
-
-for i in range(len(trigger)):
-    
-    max_error[i] = max(abs(error[ZHSpeak>trigger[i]]))
-    std[i] = np.std(error[ZHSpeak>trigger[i]])
-    
-    
-plt.scatter(trigger, max_error, label ="50-200 MHz")
-plt.xlabel("Threshold [$\mu V/m$]")
-plt.ylabel("Maximum relative error")
-plt.savefig("/Users/chiche/Desktop/MaxRelErr.pdf")
-plt.show()
-
-
-plt.scatter(trigger, std)
-plt.xlabel("Threshold [$\mu V/m$]")
-plt.ylabel("RMS relative error")
-plt.savefig("/Users/chiche/Desktop/RMSrelErr.pdf")
-plt.show()
-
-
-
-
+PlotHistErr(error,ZHSfilteredpeak, TriggerThreshold, SavePath)
 
 
 

@@ -13,8 +13,9 @@ from coreRadiomorphing_ground import extractData
 import sys
 from ScalingTestRadiomorphing import Scalingcheck
 #from interpolation_test_ground import test_interpolation
-from TestFilter import test_interpolation
+from InterpolationTest.TestFilter import test_interpolation
 import matplotlib.pyplot as plt
+plt.ion()
 
 Local = True
 Lyon = not(Local)
@@ -25,18 +26,16 @@ if(Local):
 else:
     simulations = np.loadtxt\
     ("/sps/trend/chiche/RadiomorphingUptoDate/TargetPath.txt", dtype = 'str')
+    start =  int(sys.argv[1]) 
+    stop =  int(sys.argv[2])
+    if(stop>len(simulations)): stop = len(simulations) 
+    print(len(simulations))
 
 # We initialize the RM test variables
 ILDFvxbAll, ILDFvxvxbAll , ItotAll , krho_all, RefTheta, \
 TargetTheta, DplaneRef, DplaneTarget = [], [], [], [], [], [], [], []
 RefEnergy, TargetEnergy, RefPhi, TargetPhi = [], [], [], []
 ResidualPeakAll, TargetPeakAll, RefPeakAll, OmegaAll = [], [], [], []
-
-if(Lyon):
-    start =  int(sys.argv[1]) 
-    stop =  int(sys.argv[2])
-    if(stop>len(simulations)): stop = len(simulations) 
-    print(len(simulations))
 
 
 # We loop the RM over the ZHS test library

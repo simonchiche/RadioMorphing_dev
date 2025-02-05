@@ -380,7 +380,6 @@ class Shower:
         zen = self._get_CRzenith()
         injh2 = self.injection
         Xmax_primary = self.Xmax_param() 
-        
         zen2 = np.deg2rad(zen)
         
         hD=injh2
@@ -423,9 +422,7 @@ class Shower:
     def getXmaxPosition(self):
         
         uv = self.showerdirection()
-        
         showerDistance = self.getGroundXmaxDistance()
-        
         XmaxPosition = -uv*showerDistance 
         XmaxPosition[2] = XmaxPosition[2] + self.glevel  
                 

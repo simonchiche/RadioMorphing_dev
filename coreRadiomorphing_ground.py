@@ -110,6 +110,8 @@ def process(sim_dir, shower,  out_dir, simxmax):
     #                              Scaling
     # =============================================================================
     
+        #print(">>>>>", TargetShower.xmaxpos, RefShower.xmaxpos)
+        #sys.exit()
         TargetShower, krho_geo = myscale(RefShower, TargetShower, simxmax)
         
     # =============================================================================
