@@ -19,7 +19,7 @@ from scipy.signal import hilbert
 
 ### Loading the data
 MainDir = "RMresults_11_12_24" 
-SaveDir = "E1_th81_phi0_0"
+SaveDir = "E1_th71_phi0_4" #"E1_th75_phi0_4"   #Stshp_Iron_3.98_85.8_90.0_4
 Filter = False
 TriggerThreshold =110
 fmin = 80e6
@@ -52,7 +52,7 @@ if(Padding):
 dt = 0.5/1e9
 k=0
 Nplot = 0
-Ndisplay = 120
+Ndisplay = 0
 
 RMpeak, ZHSpeak, ZHSfilteredpeak, error = \
 np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx))
