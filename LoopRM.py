@@ -15,6 +15,7 @@ from ScalingTestRadiomorphing import Scalingcheck
 #from interpolation_test_ground import test_interpolation
 from InterpolationTest.TestFilter import test_interpolation
 import matplotlib.pyplot as plt
+from ScalingTests.CompareLDF import CompareLDF, GetRMtraces
 plt.ion()
 
 Local = True
@@ -53,7 +54,7 @@ for i in range(len(simulations)):
     
     if(Local):
         print("Are you using perp planes? (True or False)")
-        PerpPlanes = ("True" == input())
+        PerpPlanes = False#("True" == input())
         if(PerpPlanes): 
             print("test", PerpPlanes)
             simulations[i] =  simulations[i].split("Stshp_Stshp")[0] + \
@@ -102,20 +103,26 @@ for i in range(len(simulations)):
 # =============================================================================
 #                         Radio Morphing tests
 # =============================================================================
-    
+    '''
     # Tests of the scaling 
+    #GetRMtraces(TargetShower, SimulatedShower, RefShower)
+    RMtime, RMx, RMy, RMz, index, refTime, refEx, refEy, refEz = GetRMtraces(SimulatedShower, TargetShower, efield_interpolated, IndexAll)
+    print(np.shape(refTime), np.shape(RMtime))
+    sys.exit()
+    '''
     # TODO: warning the scaling test affect the final results
-    ScalingTest = False
+    ScalingTest = True
     if(ScalingTest):
         ILDFvxb, ILDFvxvxb, Itot = \
         Scalingcheck(TargetShower, SimulatedShower, RefShower)
-
+    sys.exit()
     # Tests of the interpolation
     InterpolationTest = True
     if(InterpolationTest):
         ResidualPeak, TargetPeak, RefPeak = \
         test_interpolation(SimulatedShower,  TargetShower,\
                            efield_interpolated, IndexAll, True)
+        sys.exit()
 
         
         plt.scatter(w_interpolated, ResidualPeak, label = "M = %.2f, R = %.2f" %(np.mean(ResidualPeak[~np.isnan(ResidualPeak)]), np.std(ResidualPeak[~np.isnan(ResidualPeak)])))

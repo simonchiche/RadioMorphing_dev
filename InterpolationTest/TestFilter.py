@@ -52,6 +52,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     for i in range(4*NantRefLayout):
         if((i>=0) & (i<NantTargetLayout)): 
             refTime.append(Traces[:,i])
+            print(i, NantTargetLayout, "time")
         if((i>=NantRefLayout) & (i<NantRefLayout + NantTargetLayout)): \
             refEx.append(Traces[:,i])
         if((i>=2*NantRefLayout) & (i<2*NantRefLayout + NantTargetLayout)): 
@@ -65,11 +66,12 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
   
     refEx, refEy, refEz = np.array(refEx),  np.array(refEy),  np.array(refEz)
     error_peak,rm_peak, zh_peak, diff_time_all  = [], [], [], []
-    
+    print(np.shape(refTime)), print(np.shape(refEx))
     print(NantTargetLayout)
     RMtime, RMx, RMy, RMz, index = [], [], [], [], []
     
     for i in range(NantTargetLayout):
+
         # We load the Target traces
         Load = True
         try:
@@ -89,7 +91,7 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             efield_interpolated[i][:,0], efield_interpolated[i][:,1], \
             efield_interpolated[i][:,2], efield_interpolated[i][:,3]
             
-            print("target", np.shape(targetTime))
+            #print("target", np.shape(targetTime))
             RMtime.append(targetTime)
             RMx.append(targetEx)
             RMy.append(targetEy)
