@@ -37,7 +37,7 @@ def myscale(RefShower, TargetShower, simxmax):
     TargetShower.traces[:,2*Nant:3*Nant], TargetShower.traces[:,3*Nant:4*Nant]\
     ,TargetShower.xmaxpos, krho_geo, krho_ce = \
     DensityScale(RefShower, TargetShower)
-    
+    #sys.exit(TargetShower.xmaxpos)
     TargetShower.xmaxpos = simxmax # for the tests only # TODO: remove for relase version
         
     # Layout and traces stretching
@@ -46,6 +46,11 @@ def myscale(RefShower, TargetShower, simxmax):
 
     # Back in the geographic plane
     TargetShower.pos, TargetShower.traces = TargetShower.GetinGeographicFrame()
+
+    Pos = TargetShower.pos
+    #plt.scatter(Pos[:,0], Pos[:,1], s=1, c='k', label='Target Antennas')
+    #plt.show()
+    #sys.exit()
         
     # TODO: include magnetic field scaling   
     

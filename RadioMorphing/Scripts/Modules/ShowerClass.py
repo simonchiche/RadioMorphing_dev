@@ -313,7 +313,7 @@ class Shower:
                 
                 sigma_xmax = a + b/energy**c
                 Xmax = np.random.normal(Xmax, sigma_xmax)
-            
+                        
             return Xmax
         
         else:
@@ -376,6 +376,7 @@ class Shower:
         ai: float
             Xmax_distance injection to Xmax along shower axis in m
         '''
+   
         
         zen = self._get_CRzenith()
         injh2 = self.injection
@@ -424,7 +425,7 @@ class Shower:
         uv = self.showerdirection()
         showerDistance = self.getGroundXmaxDistance()
         XmaxPosition = -uv*showerDistance 
-        XmaxPosition[2] = XmaxPosition[2] + self.glevel  
+        XmaxPosition[2] = XmaxPosition[2] + self.glevel 
                 
         return XmaxPosition
     

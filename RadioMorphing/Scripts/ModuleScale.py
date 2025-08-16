@@ -96,6 +96,9 @@ def DensityScale(RefShower, TargetShower):
     Nant = RefShower.nant
     
     xmax_target  = TargetShower.getXmaxPosition()
+
+    XmaxHeight_target, DistDecayXmax = TargetShower._dist_decay_Xmax()    
+    XmaxHeight_ref = RefShower.getSphericalXmaxHeight()
             
     XmaxHeight_target, DistDecayXmax = TargetShower._dist_decay_Xmax()    
     XmaxHeight_ref = RefShower.getSphericalXmaxHeight()

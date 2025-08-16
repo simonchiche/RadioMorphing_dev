@@ -18,8 +18,8 @@ from ModuleFilter import LoadData, CorrectPadding, ApplyFilter, MaxHilbert, GetR
 from scipy.signal import hilbert
 
 ### Loading the data
-MainDir = "RMresults_11_12_24" 
-SaveDir = "E1_th71_phi0_4" #"E1_th75_phi0_4"   #Stshp_Iron_3.98_85.8_90.0_4
+MainDir = "RMresults_09_08_24" 
+SaveDir = "E1_th75_phi0_4" #"E1_th75_phi0_4"   #Stshp_Iron_3.98_85.8_90.0_4
 Filter = False
 TriggerThreshold =110
 fmin = 80e6
@@ -35,7 +35,7 @@ method = "peak"
 band = flabel + "_" + triggLabel + "_" + method
 
 SavePath = "/Users/chiche/Desktop/" + MainDir + "/" + SaveDir + "_" + band
-path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
+path = "./DataRMFilterTests/Traces/"
 ZHStime, ZHSx, ZHSy, ZHSz, RMtime, RMx, RMy, RMz, index, Nant =  LoadData(SaveDir, path)
 
 ### Padding correction
@@ -52,7 +52,7 @@ if(Padding):
 dt = 0.5/1e9
 k=0
 Nplot = 0
-Ndisplay = 0
+Ndisplay = 5
 
 RMpeak, ZHSpeak, ZHSfilteredpeak, error = \
 np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx))
@@ -71,6 +71,7 @@ for i in range(Nmax):
         ZHS_filtered_x, ZHS_filtered_y, ZHS_filtered_z = np.copy(ZHSx), np.copy(ZHSy), np.copy(ZHSz)
         ZHS_filtered_x[i,:], ZHS_filtered_y[i,:], ZHS_filtered_z[i,:] =  ApplyFilter(ZHStime, ZHS_filtered_x[i,:], ZHS_filtered_y[i,:], ZHS_filtered_z[i,:], i, 30e6, 80e6)
        
+        # We take the channel with the highest amplitude to compare with RM
         abs_arrays = [np.abs(ZHS_filtered_x[i,:]), np.abs(ZHS_filtered_y[i,:]), np.abs(ZHS_filtered_z[i,:])]
         max_index = np.argmax([np.max(arr) for arr in abs_arrays])
         ZHSmain  = [ZHS_filtered_x, ZHS_filtered_y, ZHS_filtered_z][max_index]
@@ -98,7 +99,7 @@ for i in range(Nmax):
 
         
         # PLOTTING THE RESULTS
-        if((Nplot<Ndisplay) & (max(abs(ZHSmain[i,:]))>60) & (k>0)):
+        if((Nplot<Ndisplay) & (max(abs(ZHSmain[i,:]))>30) & (k>0)):
             print(i)
             ### Trace comparison
             #print(k)
@@ -118,7 +119,7 @@ for i in range(Nmax):
 # PLOTTING ERROR RESULTS
 # Plot given trace
 ant_id = 6
-#CompareGivenTrace(ant_id, index, ZHSx, RMx)
+CompareGivenTrace(ant_id, index, ZHSx, RMx)
 
 # Error
 PlotError(error, ZHSfilteredpeak, TriggerThreshold, SavePath)

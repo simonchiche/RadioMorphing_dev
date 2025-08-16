@@ -53,7 +53,7 @@ def process(sim_dir, shower,  out_dir, simxmax):
     desired_positionsAll =  np.loadtxt(shower["antennaDir"])
 
     # We select the reference shower and planes for each target antenna
-    IndexAll, DplaneRefAll, PathAll, DplaneTargetAll = select_plane_ground(desired_positionsAll, simxmax, shower)
+    IndexAll, DplaneRefAll, PathAll, DplaneTargetAll, XmaxPos = select_plane_ground(desired_positionsAll, simxmax, shower)
     IndexAllCut = IndexAll
    
     # Initilaization of the outputs
@@ -67,7 +67,7 @@ def process(sim_dir, shower,  out_dir, simxmax):
               GetTargetPositionsPerPlane(IndexAll, DplaneRefAll, DplaneTargetAll, desired_positionsAll, PathAll, i)
         
         # We initalize the Target Shower from the input parameters and the selected reference shower
-        Nant, RefShower, TargetShower = GenerateTargetShower(selected_plane, shower)
+        Nant, RefShower, TargetShower = GenerateTargetShower(selected_plane, shower, XmaxPos)
         #print_plane(RefShower, TargetShower, dplane)
         
     # =============================================================================
@@ -138,5 +138,6 @@ def process(sim_dir, shower,  out_dir, simxmax):
     EfieldAllAntennas, wAllAntennas = \
         CorrectOmegaAngleBias(RefShower, TargetShower, EfieldAllAntennas, wAllAntennas, CorrectBias = False)
 
+    plt.scatter
 
     return TargetShower, RefShower, EfieldAllAntennas, wAllAntennas, np.array(IndexAllCut, dtype = object)

@@ -14,6 +14,7 @@ from Modules.ShowerClass import Shower, extractData, CerenkovStretch
 import matplotlib.pyplot as plt
 from interpolation_ground import SelectAntennasForInterpolationCorrected, \
 GetAntennaAnglesSimon, get_center, ComputeAntennaPhi, get_in_shower_plane
+from Modules.ModuleGetXmaxPos import getXmaxPosition
 import copy
 
 Local = True
@@ -160,7 +161,8 @@ def select_pathOld(path, dplane, selected_azimuth):
     return sim[min_index], dsim[min_index]
 
 def select_plane_groundOld(primary, energy, zenith, azimuth, \
-                        injection, altitude, fluctuations, cross_check, Xmax, shower):
+                        injection, glevel, fluctuations, cross_check, Xmax, shower):
+    
     
     # We get the closest plane of antenna
     dplane = \
@@ -196,8 +198,10 @@ def select_plane_groundOld(primary, energy, zenith, azimuth, \
 def select_plane_ground(cross_check, Xmax, shower):
     
 
-    primary, energy, zenith, azimuth, injection, altitude, fluctuations = shower["primary"], \
+    primary, energy, zenith, azimuth, injection, glevel, fluctuations = shower["primary"], \
     shower["energy"], shower["zenith"], shower["azimuth"], shower["injection"], shower["altitude"],shower["fluctuations"]
+
+    XmaxPos = getXmaxPosition(primary, energy, fluctuations, azimuth, zenith, glevel, injection)
 
     # We get the closest plane of antenna
     dplane = \
@@ -223,7 +227,7 @@ def select_plane_ground(cross_check, Xmax, shower):
     IndexAll, DsimAll, PathAll  = \
     CorrectPlane(IndexAll, DsimAll, PathAll, cross_check, zenith, azimuth, Xmax, NantDes, shower)
     
-    return IndexAll, DsimAll, PathAll, dplane
+    return IndexAll, DsimAll, PathAll, dplane, XmaxPos
 
 
 def get_distplane(zenith, azimuth, x, y, z, x_Xmax, y_Xmax, z_Xmax):

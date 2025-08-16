@@ -69,6 +69,7 @@ def CompareTraces(Erm, Ezhs):
     #plt.plot(abs(hilbert(Erm)))
     plt.plot(Ezhs)
     plt.plot(Erm)
+    print("bindiff:", np.argmax(abs(hilbert(Erm)))- np.argmax(abs(hilbert(Ezhs))))
     plt.show()
 
     return
