@@ -286,6 +286,11 @@ def calculate_rms_correlation(signal1, signal2):
     #sign = np.sign(np.max(np.abs(a1)) - np.max(np.abs(a2)))
     #signed_rms_diff = sign * rms_diff
     signed_rms_diff = np.mean(((a2 - a1) / a2))
+    #plt.scatter(x1[mask], a1, label='Signal 1', color='blue', s=10)  
+    #plt.scatter(x2[mask], a2, label='Signal 2', color='red', s=10)
+    #maxid = np.argmax(abs(hilbert(a1)))
+    #plt.xlim(maxid-100, maxid+100)
+    #plt.show()
 
     #if(signed_rms_diff*100>8):
         #print("LARGE ERROR")

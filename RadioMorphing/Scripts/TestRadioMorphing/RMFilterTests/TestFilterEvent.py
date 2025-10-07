@@ -22,7 +22,7 @@ from scipy.signal import correlate
 MainDir = "RMresults_09_08_24" 
 SaveDir = "E1_th75_phi0_4" #"E1_th75_phi0_4"   #Stshp_Iron_3.98_85.8_90.0_4
 Filter = False
-TriggerThreshold =110
+TriggerThreshold =60
 fmin = 50e6
 fmax = 200e6
 if(TriggerThreshold == 0): triggLabel = "noTrigg"
@@ -88,6 +88,9 @@ for i in range(Nmax):
                 #RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(np.array(RMtime[k,:]), RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
                 RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(RMtime[k,:], RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
                 RMmain = [RMx, RMy, RMz][max_index]
+        else:
+            ZHSmain_true = [ZHSx, ZHSy, ZHSz][max_index]
+            RMmain = [RMx, RMy, RMz][max_index]
                                                                                                                
             
         ### COMPUTATION OF THE ERROR
@@ -99,8 +102,8 @@ for i in range(Nmax):
         error[k] =  (ZHSpeak[k] - RMpeak[k])/ZHSpeak[k]
 
         
-        # PLOTTING THE RESULTS
-        if((Nplot<Ndisplay) & (max(abs(ZHSmain_true[i,:]))>60) & (k>0)):
+        # EVALUATING AND PLOTTING THE RESULTS
+        if((Nplot<Ndisplay) & (max(abs(ZHSmain[i,:]))>TriggerThreshold) & (k>0)):
             print(i)
             ### Trace comparison
             #print(k)
