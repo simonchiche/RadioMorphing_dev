@@ -241,7 +241,7 @@ plt.show()
 
 #plt.scatter(np.array(TargetZenithCut)[ConditionZenith], RMSPeakResidualAll[ConditionZenith], marker ='*', s= 60, color="#4C72B0")
 #plt.scatter(np.array(TargetZenithCut)[not_ConditionZenith], RMSPeakResidualAll[not_ConditionZenith], marker ='*', s= 60, color="#E69F00")
-plt.scatter(TargetZenithCut, RMSPeakResidualAll, marker ='*', s= 65, color="#4C72B0")
+#plt.scatter(TargetZenithCut, RMSPeakResidualAll, marker ='*', s= 65, color="#4C72B0")
 plt.axhline(y = 0.2, color = '#C44E52', linestyle = '--')
 plt.axhline(y = 0.12, color = '#C44E52', linestyle = '--')
 plt.axvline(x = 80, color = 'black', linestyle = '--')
@@ -426,79 +426,6 @@ plt.show()
 import pickle
 
 filteredpath ="./Data/FilteredData/"
-ZenithFiltered = np.loadtxt(filteredpath + "zenith_all_raw.txt")
-EnergyFiltered = np.loadtxt(filteredpath + "energy_all.txt")
-
-#with open(filteredpath + "error_all_correlation_mean.pkl", "rb") as f:
-#    error_all_lofar = pickle.load(f)
-with open(filteredpath + "error_all_correlation_grand_trigg60_peak.pkl", "rb") as f:
-    error_all_lofar = pickle.load(f)
-
-ZenithFilteredcut = np.unique(ZenithFiltered)
-Meanerr_filtered = np.zeros(len(ZenithFilteredcut))
-RMSerr_filtered = np.zeros(len(ZenithFilteredcut))
-
-for i in range(len(ZenithFilteredcut)):
-    indices = np.where((ZenithFiltered == ZenithFilteredcut[i]) & (EnergyFiltered>0.13))[0]
-    err_zen = {k: error_all_lofar.get(k) for k in indices if k in error_all_lofar}
-    err_1d = [val for arr in err_zen.values() for val in arr]
-    err_1d = np.array(err_1d)
-    #err_1d = err_1d[abs(err_1d)!=1.0]
-    #print(max(abs(err_1d)))
-    #err_1d= err_1d[err_1d!=0.0]
-    #print(min(abs(err_1d)))
-    plt.hist(err_1d, bins=50, color="skyblue", edgecolor='black', linewidth=0.5, alpha=0.8)
-    plt.xlabel("$\delta = (E^{ZHS} - E^{RM})/E^{ZHS}$")
-    plt.ylabel("Number of antennas")
-    plt.title("Zenith = %.1f°" %ZenithFilteredcut[i])
-    plt.grid()
-    plt.yscale("log")
-    plt.tight_layout()
-    #plt.savefig("RelPeakErrorvsZenith%.1f.pdf" %ZenithFilteredcut[i], bbox_inches = "tight")
-    plt.show()
-    Meanerr_filtered[i] = np.mean(err_1d)
-    RMSerr_filtered[i] = np.std(err_1d)
-
-
-plt.scatter(ZenithFilteredcut, Meanerr_filtered, marker ="x", color = '#0072B2', s = 65)
-plt.show()
-
-#plt.scatter(np.array(TargetZenithCut)[ConditionZenith], RMSPeakResidualAll[ConditionZenith], marker ='*', s= 60, color="#4C72B0")
-#plt.scatter(np.array(TargetZenithCut)[not_ConditionZenith], RMSPeakResidualAll[not_ConditionZenith], marker ='*', s= 60, color="#E69F00")
-plt.scatter(ZenithFilteredcut, RMSerr_filtered, marker ='*', s= 65, color="#4C72B0")
-plt.axhline(y = 0.15, color = '#C44E52', linestyle = '--')
-plt.axhline(y = 0.12, color = '#C44E52', linestyle = '--')
-plt.axvline(x = 80, color = 'black', linestyle = '--')
-plt.axvspan(80, 90, color='orange', alpha=0.15, label="Region > 80°")
-plt.xlabel("target zenith [Deg.]")
-plt.ylabel("RMS($\\delta$)")
-#plt.ylim(0.09,0.16)
-plt.text(
-    67, 0.122, "12% limit", 
-    color='#C44E52', 
-    fontsize=12, 
-    va='bottom',  # ancre verticale (texte au-dessus de la ligne)
-    ha='right'    # ancre horizontale
-)
-plt.text(
-    67, 0.15, "15% limit", 
-    color='#C44E52', 
-    fontsize=12, 
-    va='bottom',  # ancre verticale (texte au-dessus de la ligne)
-    ha='right'    # ancre horizontale
-)
-plt.text(
-    89.7, 0.15, "highly inclined showers", 
-    color='black', 
-    fontsize=10, 
-    va='bottom',  # ancre verticale (texte au-dessus de la ligne)
-    ha='right'    # ancre horizontale
-)
-plt.tight_layout()
-#plt.ylim(0.08,0.22)
-#plt.savefig("RMSvsThetaRelErrorPeak.pdf", bbox_inches = "tight")
-plt.show()
-
 
 TimingData = "./Data/Timing/"
 with open(TimingData + "dt_all.pkl", "rb") as f:
