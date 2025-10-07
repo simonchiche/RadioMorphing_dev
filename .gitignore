@@ -1,4 +1,5 @@
 !*.py
+/RadioMorphing/OutputDirectory/*
 /DesiredPositions/*
 /DesiredPositions/*
 /result_scaling/*
@@ -7,5 +8,7 @@
 /RMFilterTests/Plots
 /RMFilterTests/Plots/*
 /RMFilterTests/Traces/
+/RMBackups
 RadioMorphing_user_version/Simulations/
 RMarticle
+RMTest/RMTestPerformances/Data/RMresultsManuscript/*

@@ -14,15 +14,16 @@ import module_signal_process
 import importlib
 importlib.reload(module_signal_process)
 from module_signal_process import filter_traces, filter_single_trace
-from ModuleFilter import LoadData, CorrectPadding, ApplyFilter, MaxHilbert, GetRelError, CompareTraces, CompareTF, PlotError, CompareGivenTrace, PlotErrorVsAmplitude, GetErrvsTrigg, PlotErrvsTrigg, Plot_rms_ErrvsTrig, PlotHistErr
+from ModuleFilter import LoadData, CorrectPadding, ApplyFilter, MaxHilbert, GetRelError, CompareTraces, CompareTF, PlotError, CompareGivenTrace, PlotErrorVsAmplitude, GetErrvsTrigg, PlotErrvsTrigg, Plot_rms_ErrvsTrig, PlotHistErr, CorrectPaddingantenna, calculate_rms_correlation
 from scipy.signal import hilbert
+from scipy.signal import correlate
 
 ### Loading the data
 MainDir = "RMresults_09_08_24" 
 SaveDir = "E1_th75_phi0_4" #"E1_th75_phi0_4"   #Stshp_Iron_3.98_85.8_90.0_4
 Filter = False
 TriggerThreshold =110
-fmin = 80e6
+fmin = 50e6
 fmax = 200e6
 if(TriggerThreshold == 0): triggLabel = "noTrigg"
 if(TriggerThreshold == 60): triggLabel = "3sigma"
@@ -52,13 +53,12 @@ if(Padding):
 dt = 0.5/1e9
 k=0
 Nplot = 0
-Ndisplay = 5
+Ndisplay = 176
 
 RMpeak, ZHSpeak, ZHSfilteredpeak, error = \
 np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx)), np.zeros(len(RMx))
-#print(index)
-#print(len(index), Nant)
-#sys.exit()
+
+error_correlation = []
 # LOOP OVER THE ANTENNAS
 ### Si jamais dans index la dernier antenne (176) n'a pas pu etre  morphee alors une iteration en k en trop est ajoutee, dans l'ideal il faudrait modifier le code pour prendre en compte ce cas, je le corrige ici de maniere grossiere en imposant
 ### for i in range(Nmax) au lieu de for i in range(Nant), où Nmax = max(index) idem pour correct padding
@@ -87,6 +87,7 @@ for i in range(Nmax):
                 #print(RMtime)
                 #RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(np.array(RMtime[k,:]), RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
                 RMx[k,:], RMy[k,:], RMz[k,:] = ApplyFilter(RMtime[k,:], RMx[k,:], RMy[k,:], RMz[k,:], k, fmin, fmax)
+                RMmain = [RMx, RMy, RMz][max_index]
                                                                                                                
             
         ### COMPUTATION OF THE ERROR
@@ -99,22 +100,33 @@ for i in range(Nmax):
 
         
         # PLOTTING THE RESULTS
-        if((Nplot<Ndisplay) & (max(abs(ZHSmain[i,:]))>30) & (k>0)):
+        if((Nplot<Ndisplay) & (max(abs(ZHSmain_true[i,:]))>60) & (k>0)):
             print(i)
             ### Trace comparison
             #print(k)
-            PlotTraces = True
-            if(PlotTraces): CompareTraces(RMy[k,:],ZHSy[i,:])
+            PlotTraces = False
+            if(PlotTraces): bindiff = CompareTraces(RMy[k,:],ZHSy[i,:])
+
+            #### CORRELATION #####
+            signal1 =  RMmain[k,:]
+            signal2= ZHSmain_true[i,:]
+            print(i)
+            rms_diff = calculate_rms_correlation(signal1, signal2)
+            error_correlation.append(rms_diff)
+            print("peak error", error[k]*100)
+            print("RMS correlation error:", rms_diff*100)
+            if(rms_diff*100>30):
+                print(i, "LARGE ERROR")
             
             ### Fourier transform
-            TF = True
+            TF = False
             if(TF):
                 CompareTF(ZHSy[i,:], RMy[k,:], dt)
             
             Nplot = Nplot + 1
         #print(i,k)
         k = k +1
-
+        
 
 # PLOTTING ERROR RESULTS
 # Plot given trace
@@ -138,7 +150,7 @@ PlotErrorVsAmplitude(1, error, ZHSpeak, SavePath)
 PlotHistErr(error,ZHSfilteredpeak, TriggerThreshold, SavePath)
 
 
-
-
-
-
+error_correlation = np.array(error_correlation)
+plt.hist(error_correlation, bins=50, density=True)
+print(max(abs(error_correlation))*100, " % max error")
+np.std(error_correlation)
