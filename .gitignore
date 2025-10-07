@@ -12,3 +12,14 @@
 RadioMorphing_user_version/Simulations/
 RMarticle
 RMTest/RMTestPerformances/Data/RMresultsManuscript/*
+
+# macOS
+.DS_Store
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Data folders
+RMTest/RMTestPerformances/Data/
+
