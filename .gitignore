@@ -23,3 +23,5 @@ __pycache__/
 # Data folders
 RMTest/RMTestPerformances/Data/
 
+
+RMTest/RMTestPerformances/Figures/
