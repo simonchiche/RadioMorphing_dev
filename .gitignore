@@ -1,6 +1,4 @@
-!*.py
 /RadioMorphing/OutputDirectory/*
-/DesiredPositions/*
 /DesiredPositions/*
 /result_scaling/*
 /Miscellaneous
@@ -25,3 +23,7 @@ RMTest/RMTestPerformances/Data/
 
 
 RMTest/RMTestPerformances/Figures/
+
+*.pdf
+
+!*.py
