@@ -80,3 +80,62 @@ def GetMeanRMSerr(EnergyFiltered, ZenithFiltered, error_all, energy_threshold, f
         RMSerr_filtered[i] = np.std(err_1d)
 
     return ZenithFilteredcut, Meanerr_filtered, RMSerr_filtered
+
+def PlotMeanErr(ZenithFilteredcut, Meanerr_filtered, savepath):
+    ref_zen = np.array([67.8, 74.8, 77.4, 79.5, 86.5])
+    argrefzen = np.where(np.isin(ZenithFilteredcut, ref_zen))[0]
+    notargrefzen = np.where(~np.isin(ZenithFilteredcut, ref_zen))[0]
+    print(ZenithFilteredcut[argrefzen])
+    print(ZenithFilteredcut[notargrefzen])
+    print(ZenithFilteredcut)
+    #plt.figure()
+    #plt.scatter(ZenithFilteredcut,  Meanerr_filtered)
+    plt.scatter(ZenithFilteredcut[argrefzen], Meanerr_filtered[argrefzen], marker ="x", color = '#0072B2', s = 65, label = "$\\theta^{t} = \\theta^{\\rm ref}$")
+    plt.scatter(ZenithFilteredcut[notargrefzen], Meanerr_filtered[notargrefzen], marker ="x", color ="#E69F00", s = 60, label = "$\\theta^{t} \\neq \\theta^{\\rm ref}$")
+    plt.ylim(-0.15, 0.15)
+    plt.ylabel("$\delta = (E^{ZHS} - E^{RM})/E^{ZHS}$")
+    plt.xlabel("target zenith [Deg.]")
+    plt.tight_layout()
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.axhline(0, color='#B22222', linestyle='--', alpha=0.6)
+    plt.savefig(savepath + "MeanvsThetaRelError.pdf")
+    plt.show()
+    return
+
+def PlotRMSvsTheta(ZenithFilteredcut, RMSerr_filtered, savepath):
+    plt.scatter(ZenithFilteredcut, RMSerr_filtered, marker ='*', s= 65, color="#4C72B0")  
+    plt.axhline(y = 0.15, color = '#C44E52', linestyle = '--')
+    plt.axhline(y = 0.17, color = '#C44E52', linestyle = '--')
+    plt.axvline(x = 80, color = 'black', linestyle = '--')
+    plt.axvspan(80, 90, color='orange', alpha=0.15, label="Region > 80°")
+    plt.xlabel("target zenith [Deg.]")
+    plt.ylabel("$\sigma{(\\delta)}$")
+    plt.ylim(0.12,0.18)
+    plt.text(
+       67, 0.171, "17% limit", 
+        color='#C44E52', 
+        fontsize=12, 
+        va='bottom',  # ancre verticale (texte au-dessus de la ligne)
+        ha='right'    # ancre horizontale
+    )
+    plt.text(
+        67, 0.151, "15% limit", 
+        color='#C44E52', 
+        fontsize=12, 
+        va='bottom',  # ancre verticale (texte au-dessus de la ligne)
+        ha='right'    # ancre horizontale
+    )
+    plt.text(
+        89.7, 0.125, "highly inclined showers", 
+        color='black', 
+        fontsize=10, 
+        va='bottom',  # ancre verticale (texte au-dessus de la ligne)
+        ha='right'    # ancre horizontale
+    )
+    plt.tight_layout()
+    #plt.ylim(0.08,0.22)
+    plt.savefig(savepath + "RMSvsThetaRelError.pdf", bbox_inches = "tight")
+    plt.show() 
+
+    return

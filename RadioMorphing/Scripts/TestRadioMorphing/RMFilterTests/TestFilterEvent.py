@@ -16,7 +16,8 @@ importlib.reload(module_signal_process)
 from module_signal_process import filter_traces, filter_single_trace
 from ModuleFilter import LoadData, CorrectPadding, ApplyFilter, MaxHilbert, GetRelError, CompareTraces, CompareTF, PlotError, CompareGivenTrace, PlotErrorVsAmplitude, GetErrvsTrigg, PlotErrvsTrigg, Plot_rms_ErrvsTrig, PlotHistErr, CorrectPaddingantenna, calculate_rms_correlation
 from scipy.signal import hilbert
-from scipy.signal import correlate
+import scipy
+from scipy.signal import correlate 
 
 ### Loading the data
 MainDir = "RMresults_09_08_24" 
