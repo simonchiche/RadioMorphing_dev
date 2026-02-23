@@ -144,16 +144,17 @@ if(FilterAzimuth0):
     TargetAzimuthAllAntennas = TargetAzimuthAllAntennas[TargetAzimuthAllAntennas!=0]
    
 FilterEnergy= True
+ThresholdEnergy = 0.12589
 if(FilterEnergy):
-    TargetZenithAllAntennas = TargetZenithAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    RefZenithAllAntennas = RefZenithAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    PeakResidualAllAntennas = PeakResidualAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    OmegaAllAntennas = OmegaAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    DplaneRefAllAntennas = DplaneRefAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    DplaneTargetAllAntennas = DplaneTargetAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    RefPeakAllAntennas = RefPeakAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    TargetAzimuthAllAntennas = TargetAzimuthAllAntennas[TargetEnergyAllAntennas != 0.12589]
-    TargetEnergyAllAntennas = TargetEnergyAllAntennas[TargetEnergyAllAntennas != 0.12589]
+    TargetZenithAllAntennas = TargetZenithAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    RefZenithAllAntennas = RefZenithAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    PeakResidualAllAntennas = PeakResidualAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    OmegaAllAntennas = OmegaAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    DplaneRefAllAntennas = DplaneRefAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    DplaneTargetAllAntennas = DplaneTargetAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    RefPeakAllAntennas = RefPeakAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    TargetAzimuthAllAntennas = TargetAzimuthAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
+    TargetEnergyAllAntennas = TargetEnergyAllAntennas[TargetEnergyAllAntennas != ThresholdEnergy]
 
 FilterOmega= False
 if(FilterOmega):
@@ -318,11 +319,17 @@ plt.show()
 MeanPeakResidualsEbins_phi = dict()
 RMSPeakResidualsEbins_phi = dict()
 PhiBins= np.unique(TargetAzimuthAllAntennas)
+
+TargetAzimuthAllAntennas_grand = np.copy(TargetAzimuthAllAntennas)
+TargetAzimuthAllAntennas_grand[TargetAzimuthAllAntennas_grand==270] = 90
+PhiBins= np.unique(TargetAzimuthAllAntennas_grand)
+
+################
 bin_edges = np.linspace(-0.5, 0.5, 40) 
 ### PLOT for article
 for k in range(len(PhiBins)):
     label = "$\\varphi = %.d^{\circ}$" % PhiBins[k]
-    sel = (TargetAzimuthAllAntennas == PhiBins[k]) & (TargetEnergyAllAntennas==3.9811)
+    sel = (TargetAzimuthAllAntennas_grand == PhiBins[k]) & (TargetZenithAllAntennas>85)
     PeakResidualAllAntennas_cut = PeakResidualAllAntennas[sel]
     plt.hist(PeakResidualAllAntennas_cut, bin_edges, alpha=0.6, edgecolor='black', label=label)
 plt.legend()
@@ -331,6 +338,11 @@ plt.ylabel("counts")
 #plt.savefig("RM_rel_err_vs_azimuth.pdf", bbox_inches ="tight")
 plt.show()
 
+
+
+
+
+#############
 
 TargetEnergyCut = get_ZenithCut(TargetEnergyAllAntennas)
 N_Ebins = len(TargetEnergyCut)
@@ -360,7 +372,7 @@ plt.plot(TargetEnergyCut, MeanPeakResidualsEbins_phi[0], "-s", label ="$\\varphi
 plt.plot(TargetEnergyCut, MeanPeakResidualsEbins_phi[2], "-o", label ="$\\varphi=%.d^{\circ}$" %90, color ="#2ca02c", linewidth=2)
 plt.plot(TargetEnergyCut, MeanPeakResidualsEbins_phi[1], "-*", label ="$\\varphi=%.d^{\circ}$" %PhiBins[1], color ="#d62728", markersize=8, linewidth=2)
 plt.ylabel("$\delta = (E^{ZHS} - E^{RM})/E^{ZHS}$")
-plt.xlabel("Target Azimuth [Deg.]")
+plt.xlabel("Target Energy [EeV]")
 plt.axhline(0, color='#B22222', linestyle='--', alpha=0.6)
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.legend(frameon=False)
