@@ -78,8 +78,52 @@ def GetMeanRMSerr(EnergyFiltered, ZenithFiltered, error_all, energy_threshold, f
             PlotRMSDistrib(err_1d, ZenithFilteredcut[i], filteredpath)
         Meanerr_filtered[i] = np.mean(err_1d)
         RMSerr_filtered[i] = np.std(err_1d)
+        
 
     return ZenithFilteredcut, Meanerr_filtered, RMSerr_filtered
+
+def GetMeanRMSerrE(EnergyFiltered, ZenithFiltered, error_all, energy_threshold, filteredpath, PLOT=False):
+
+    EnergyFilteredcut = np.unique(EnergyFiltered)
+    Meanerr_filtered = np.zeros(len(EnergyFilteredcut))
+    RMSerr_filtered = np.zeros(len(EnergyFilteredcut))
+
+    for i in range(len(EnergyFilteredcut)):
+        indices = np.where((EnergyFiltered == EnergyFilteredcut[i]))[0]
+        err_zen = {k: error_all.get(k) for k in indices if k in error_all}
+        err_1d = [val for arr in err_zen.values() for val in arr]
+        err_1d = np.array(err_1d)
+
+        if(PLOT):
+            PlotRMSDistrib(err_1d, EnergyFilteredcut[i], filteredpath)
+        Meanerr_filtered[i] = np.mean(err_1d)
+        RMSerr_filtered[i] = np.std(err_1d)
+        
+
+    return EnergyFilteredcut, Meanerr_filtered, RMSerr_filtered
+
+
+def GetMeanRMSerrClean(EnergyFiltered, ZenithFiltered, error_all, energy_threshold, filteredpath, PLOT=False):
+
+    ZenithFilteredcut = np.unique(ZenithFiltered)
+    Meanerr_filtered = np.zeros(len(ZenithFilteredcut))
+    RMSerr_filtered = np.zeros(len(ZenithFilteredcut))
+
+    for i in range(len(ZenithFilteredcut)):
+        indices = np.where((ZenithFiltered == ZenithFilteredcut[i]) & (EnergyFiltered>energy_threshold))[0]
+        err_zen = {k: error_all.get(k) for k in indices if k in error_all}
+        err_1d = [val for arr in err_zen.values() for val in arr]
+        err_1d = np.array(err_1d)
+        err_1d=err_1d[abs(err_1d)<1]
+
+        if(PLOT):
+            PlotRMSDistrib(err_1d, ZenithFilteredcut[i], filteredpath)
+        Meanerr_filtered[i] = np.mean(err_1d)
+        RMSerr_filtered[i] = np.std(err_1d)
+        
+
+    return ZenithFilteredcut, Meanerr_filtered, RMSerr_filtered
+
 
 def PlotMeanErr(ZenithFilteredcut, Meanerr_filtered, savepath):
     ref_zen = np.array([67.8, 74.8, 77.4, 79.5, 86.5])
@@ -111,7 +155,7 @@ def PlotRMSvsTheta(ZenithFilteredcut, RMSerr_filtered, savepath):
     plt.axvspan(80, 90, color='orange', alpha=0.15, label="Region > 80°")
     plt.xlabel("target zenith [Deg.]")
     plt.ylabel("$\sigma{(\\delta)}$")
-    plt.ylim(0.12,0.18)
+    #plt.ylim(0.12,0.18)
     plt.text(
        67, 0.171, "17% limit", 
         color='#C44E52', 

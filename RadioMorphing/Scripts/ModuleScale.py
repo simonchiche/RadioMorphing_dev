@@ -28,7 +28,7 @@ def EnergyScale(RefShower, TargetShower):
     
     if(TargetShower.fluctuations):
         
-        ref_energy = np.random.normal(ref_energy, 0.1*ref_energy)
+        ref_energy = np.random.normal(ref_energy, 0.04*ref_energy)
     
     kE = target_energy/ref_energy
     

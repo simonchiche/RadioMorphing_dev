@@ -27,12 +27,21 @@ from TestRadioMorphing.ModuleTestRM import GetTargetShowerParamFromZHSsim
 
 # Test library to compare the RM results with ZHAireS simulations
 ##PATH DEFINITIONS
-#simulations = glob.glob("./TargetShowers/*.hdf5") 
-RMarticlePath = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMarticle"
+simulations = glob.glob("./TargetShowers/*.hdf5") 
+#simulations =["/Users/chiche/Desktop/Stshp_Iron_1.0_63.0_0.0_10.hdf5"]
+###simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_1.0_74.8_0.0_4.hdf5"]
+# 
+# simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_1.0_71.6_0.0_10.hdf5"] 
+### simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_1.0_71.6_0.0_16.hdf5"]  # SELECTED SIM 1
+simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_3.98_71.6_90.0_4.hdf5"] # SELECTED SIM 2
+#simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_3.98_74.8_0.0_10.hdf5"] 
+#simulations =["/Users/chiche/Desktop/TestSimsRM/Stshp_Iron_1.0_74.8_90.0_16.hdf5"]
+
+RMarticlePath = "/Users/chiche/Desktop/RadioMorphing/RadioMorphingUptoDate/RMarticle"
 OutputPath =  RMarticlePath + "/figures/EnergyScaling/"
 #simulations = glob.glob(RMarticlePath + "/Simulations/EnergyScaling/*.hdf5") # Energy Scaling
 #simulations = glob.glob(RMarticlePath + "/Simulations/AzimuthScaling/*.hdf5") # Energy Scaling
-simulations = glob.glob(RMarticlePath + "/Simulations/ShowerFluctuations/*.hdf5") # Energy Scaling
+#simulations = glob.glob(RMarticlePath + "/Simulations/ShowerFluctuations/*.hdf5") # Energy Scaling
 
 # Flags
 ScalingTest = False
@@ -47,9 +56,10 @@ for Simulated_path in simulations:
 # =============================================================================
 #                         Radio Morphing launching
 # =============================================================================
-
+    
     TargetShower, RefShower, efield_interpolated, w_interpolated, IndexAll = \
     run(energy, zenith, azimuth, xmaxsim)
+    
 
 # =============================================================================
 #                         Radio Morphing tests

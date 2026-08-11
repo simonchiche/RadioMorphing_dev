@@ -37,7 +37,9 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     NantRefStarshape = SimulatedShower.InitialShape
     NantRefLayout = SimulatedShower.NantTraces
     NantRefCrossCheck = NantRefLayout - NantRefStarshape
-    NantTargetLayout = TargetShower.nant - TargetShower.InitialShape   
+    NantTargetLayout = TargetShower.nant - TargetShower.InitialShape 
+    print(NantTargetLayout, TargetShower.nant, TargetShower.InitialShape, "initial")  
+    print(IndexAll, "IndexAll")
     filtering = TargetShower.filter
 
     if filtering:
@@ -69,6 +71,9 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
     print(np.shape(refTime)), print(np.shape(refEx))
     print(NantTargetLayout)
     RMtime, RMx, RMy, RMz, index = [], [], [], [], []
+    AntPos =[]
+    
+    SimulatedShower.pos, SimulatedShower.traces =SimulatedShower.GetinShowerPlane()
     
     for i in range(NantTargetLayout):
 
@@ -85,11 +90,13 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
             rm_peak.append(np.nan)
             zh_peak.append(np.nan)
             error_peak.append(np.nan)
+            AntPos.append(np.array([np.nan, np.nan, np.nan]))
             #print("OULAH")
         if(Load):
             targetTime, targetEx, targetEy, targetEz = \
             efield_interpolated[i][:,0], efield_interpolated[i][:,1], \
             efield_interpolated[i][:,2], efield_interpolated[i][:,3]
+            AntPos.append(SimulatedShower.pos[i])
             
             #print("target", np.shape(targetTime))
             RMtime.append(targetTime)
@@ -228,6 +235,17 @@ def test_interpolation(SimulatedShower, TargetShower, efield_interpolated,\
                     zh_peak.append(np.nan)
                     error_peak.append(np.nan)
     
+    print(np.array(AntPos).shape)
+    plt.scatter(np.array(AntPos)[:,1], np.array(AntPos)[:,2], c = abs(np.array(error_peak))/1.3, s = 50,cmap='jet')
+    plt.xlabel(r"$v \times B$ [m]")
+    plt.ylabel(r"$v \times (v \times B)$ [m]")
+    plt.title(r"$E=1.0 \, \mathrm{EeV}, \theta=%.1f^{\circ}, \varphi=%.1f^{\circ}$" %( 180-SimulatedShower.zenith, (180 + SimulatedShower.azimuth)%360), fontsize =14)
+    plt.tight_layout()
+    cbar = plt.colorbar()
+    cbar.set_label("$|\delta| = |(E^{ZHS} - E^{RM})/E^{ZHS}|$", labelpad=15)
+    plt.savefig("./RelativeErrorMap_E%.f_phi%.f_theta%.f.pdf" %(SimulatedShower.energy, (180 + SimulatedShower.azimuth)%360, 180-SimulatedShower.zenith), bbox_inches='tight')
+    plt.show()
+
     path = "/Users/chiche/Desktop/RadioMorphingUptoDate/RMFilterTests/Traces/"
     SaveDir = "E1_th75_phi0_4"
     cmd = "mkdir -p " + path + SaveDir

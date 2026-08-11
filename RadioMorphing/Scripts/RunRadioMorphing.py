@@ -22,7 +22,7 @@ def run(energy, zenith, azimuth, simxmax):
     antennaPath = glob.glob("./../DesiredPositions/desired_pos.txt")[0]
 
     params = {}
-    
+    '''
     with open("./../ShowerInputs/Shower.inp") as f:
         for line in f:
             line = line.strip()
@@ -39,12 +39,25 @@ def run(energy, zenith, azimuth, simxmax):
         "energy" : float(params["Energy"]), #energy,               # EeV
         "zenith" : 180 - float(params["Zenith"]), #180 - zenith,         # deg (GRAND frame)
         "azimuth" : (180 + float(params["Azimuth"])) % 360, #(180 + azimuth)%360, # deg (GRAND frame)
-        "injection" : 1e6,               # m (injection height)
+        "injection" : 1e5,               # m (injection height)
         "altitude" : float(params["Altitude"]),              # m (altitude above sea level)
         "fluctuations" : fluctuations,           # enable shower to shower fluctuations
         "filter" : False,                # enable the traces filtering
         "antennaDir" : antennaPath,      # path to desired antennas positions
         }   
+    '''
+    shower = {
+        "primary" : "Iron",              # primary (Proton or Iron)
+        "energy" : energy,               # EeV
+        "zenith" : 180 - zenith,         # deg (GRAND frame)
+        "azimuth" : (180 + azimuth)%360, # deg (GRAND frame)
+        "injection" : 1e5,               # m (injection height)
+        "altitude" : 1000.,              # m (altitude above sea level)
+        "fluctuations" : False,          # enable shower to shower fluctuations
+        "filter" : False,                # enable the traces filtering
+        "antennaDir" : antennaPath,      # path to desired antennas positions
+        }   
+
     
     # Perform the radiomorphing
     TargetShower, RefShower, efield_interpolated, w_interpolated, IndexAll = \

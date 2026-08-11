@@ -28,7 +28,9 @@ def select_zenith(target_zenith):
     # zenith of the ref library
     # To modify if we change the ref library
     # TODO: change in Lyon
-    zenith_sim  = np.array([65.5, 67.8, 74.8, 79.5, 82.7, 85.0, 86.5])
+    #zenith_sim  = np.array([65.5, 67.8, 74.8, 79.5, 82.7, 85.0, 86.5])
+
+    zenith_sim  = np.array([65.5, 67.8, 69.8, 74.8, 76.1, 77.4, 78.5, 79.5, 80.4, 82.0, 83.4, 84.5, 85.0, 85.4, 86.2, 86.5, 86.8])
     
     # We use as reference shower the shower with the closest zenith from the
     # targeted one
@@ -326,8 +328,18 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
         position_sims,positions_des, SelectedPlane.glevel, Inclination)
         #plt.scatter(pos_sims_angles[:,1], pos_sims_angles[:,2])
         #plt.show()
+        '''
+        # --- DEBUG ---
+        print("PathAll[i]      :", PathAll[i])
+        print("dplane (DsimAll):", DsimAll[i])
+        print("xmaxposition    :", xmaxposition)
+        print("Nant ref plane   :", position_sims.shape)
+        print("pos_sims_angles[:5]:", pos_sims_angles[:5])
+        print("pos_des_angle[j0]  :", pos_des_angle[0])
+        '''
         IndexDplane = []
         #print(DsimAll[i])
+       
         # Loop over each antenna of each group
 
             
@@ -392,6 +404,8 @@ def CorrectPlane(IndexAll, DsimAll, PathAll, TargetAntennas, \
     else:
         DsimAll = DsimAll[:len(IndexAllCorrected)]
         PathAll = PathAll[:len(IndexAllCorrected)]
+
+    
 
     #sys.exit()
     #print(IndexAllCorrected)

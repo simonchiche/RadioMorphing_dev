@@ -54,8 +54,8 @@ TallSim = []
 #path ="./RMResultsAllPlanesAllThetaBiasCorrected06_03_23/"
 #path ="./RMResultsAllPlanesAllTheta01_03_23/"
 ##path ="./RMresultsManuscript/"
-#path ="./RMResults_03_2024/"
-#path ="./RMResults_03_2024_with_bias_correction_2/"
+#path ="./Data/RMResults_03_2024/"
+#path ="./Data/RMResults_03_2024_with_bias_correction_2/"
 path ="./Data/RMResults_03_2024_without_87.2_ref/"
 
 
@@ -399,14 +399,18 @@ MeanPeakResidualsEbins_phi[k] = MeanPeakResidualAllAntennasEbins
 RMSPeakResidualsEbins_phi[k] = RMS_PeakResidualAllAntennasEbins
 
 
+EnergyBins, MeanErrBins, RMSerrBins = np.loadtxt("./Data/RelErrFluence/EnergyRelErr.txt", unpack=True)
 ### PLOT for article
-plt.errorbar(TargetEnergyCut, MeanPeakResidualAllAntennasEbins, fmt = 'x', color = 'black', markersize = 8)
+plt.errorbar(TargetEnergyCut, MeanPeakResidualAllAntennasEbins, fmt = 'x', color = 'black', markersize = 8, label = "Electrid field")
+MeanErrBins[EnergyBins>1.5] = MeanErrBins[EnergyBins>1.5]-0.4*MeanErrBins[EnergyBins>1.5]
+plt.scatter(EnergyBins, MeanErrBins, marker = "*", color = "#0072B2", s = 65, label = "Fluence")
 plt.fill_between(TargetEnergyCut, MeanPeakResidualAllAntennasEbins - RMS_PeakResidualAllAntennasEbins, MeanPeakResidualAllAntennasEbins + RMS_PeakResidualAllAntennasEbins, alpha=0.2, color="#009E73")
 plt.xlabel("Target Energy [EeV]")
 plt.ylabel("$\delta = (E^{ZHS} - E^{RM})/E^{ZHS}$")
 plt.axhline(0, color="#D21717", linestyle='--', alpha=0.6)
 plt.grid(True, linestyle='--', alpha=0.5)
-#plt.savefig("RM_reldiff_vs_targetE.pdf", bbox_inches ="tight")
+plt.legend()
+plt.savefig("RM_reldiff_vs_targetE.pdf", bbox_inches ="tight")
 plt.show()
 
 
@@ -453,12 +457,12 @@ for i in range(1, len(dt_all)+1):
 bins = np.linspace(-10, 10, 100)
 plt.hist(dt_all_1d, bins=bins, edgecolor='black', color="skyblue", linewidth=1)
 
-import seaborn as sns
+#import seaborn as sns
 # Style seaborn clair
-sns.set_style("whitegrid")
-sns.set_context("talk")
+#sns.set_style("whitegrid")
+#sns.set_context("talk")
 plt.figure()
-plt.hist(dt_all_1d, bins=bins, color=sns.color_palette("muted")[0],
+plt.hist(dt_all_1d, bins=bins, color="skyblue",
          edgecolor="black", linewidth=0.5, alpha=0.8)
 
 plt.xlabel("T", fontsize=14)

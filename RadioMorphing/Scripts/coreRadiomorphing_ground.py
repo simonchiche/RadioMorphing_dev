@@ -49,7 +49,8 @@ def process(sim_dir, shower,  out_dir, simxmax):
 #                         Shower building
 # =============================================================================
     
-    # We read the desired positions    
+    # We read the desired positions   
+    
     desired_positionsAll =  np.loadtxt(shower["antennaDir"])
 
     # We select the reference shower and planes for each target antenna
@@ -58,7 +59,7 @@ def process(sim_dir, shower,  out_dir, simxmax):
    
     # Initilaization of the outputs
     EfieldAllAntennas, wAllAntennas, IndexAllAntennas, NinterpolatedAll = [], [], [], 0
-
+    
     # Loop over all selected planes for interpolation
     for i in range(len(DplaneRefAll)):
         
